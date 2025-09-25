@@ -1,71 +1,77 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-
-
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 @Component({
   selector: 'app-tela-login-notes',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './tela-login-notes.html',
-  styleUrl: './tela-login-notes.css'
+  styleUrls: ['./tela-login-notes.css'],
 })
-
-export class TelaLoginNotes {
-
+export class TelaLoginNotes implements OnInit {
   loginForm: FormGroup;
-  isLoading = false;
-  showPassword = false;
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router
-  ) {
-    this.loginForm = this.formBuilder.group({
+  emailErrorMessage: string = '';
+  passwordErrorMessage: string = '';
+  sucessoErrorMessage: string = '';
+  incorretoErrorMessage: string = '';
+  isDarkMode = false;
+  
+  constructor(private fb: FormBuilder) {
+    this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]],
     });
   }
-
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
-
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      
-      const { email, password } = this.loginForm.value;
-      
-      // Simular requisição de login
-      setTimeout(() => {
-        this.isLoading = false;
-        console.log('Login attempt:', { email, password });
-        
-        // Aqui você integraria com seu serviço de autenticação
-        // this.authService.login(email, password).subscribe(...)
-        
-        // Exemplo de redirecionamento após login bem-sucedido
-        // this.router.navigate(['/dashboard']);
-      }, 2000);
+  ngOnInit(): void {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      this.isDarkMode = savedTheme === 'dark';
     } else {
-      this.markFormGroupTouched();
+      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    this.updateTheme();
+  }
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    this.updateTheme();
+    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+  }
+  private updateTheme(): void {
+    document.body.classList.toggle('dark-mode', this.isDarkMode);
+  }
+  async onLoginClick(): Promise<void> {
+    if (this.loginForm.invalid) {
+      const emailVal = this.loginForm.get('email')?.value;
+      const passVal = this.loginForm.get('password')?.value;
+      this.emailErrorMessage = emailVal ? '' : 'O campo de e-mail é obrigatório.';
+      this.passwordErrorMessage = passVal ? '' : 'O campo de senha é obrigatório.';
+      return;
+    }
+    this.emailErrorMessage = '';
+    this.passwordErrorMessage = '';
+    this.sucessoErrorMessage = '';
+    this.incorretoErrorMessage = '';
+    const { email, password } = this.loginForm.value;
+    try {
+      const response = await fetch('https://senai-gpt-api.azurewebsites.net/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (response.ok) {
+        this.sucessoErrorMessage = 'Login realizado com sucesso!';
+        const json = await response.json();
+        const meuToken = json.accessToken;
+        const meuId = json.user?.id;
+        localStorage.setItem('meuToken', meuToken ?? '');
+        if (meuId != null) localStorage.setItem('meuId', String(meuId));
+        window.location.href = 'chat';
+      } else {
+        this.incorretoErrorMessage = 'E-mail ou senha incorretos.';
+      }
+    } catch (err) {
+      console.error(err);
+      this.incorretoErrorMessage = 'Erro de conexão. Tente novamente.';
     }
   }
-
-  private markFormGroupTouched(): void {
-    Object.keys(this.loginForm.controls).forEach(key => {
-      const control = this.loginForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
-  get email() {
-    return this.loginForm.get('email');
-  }
-
-  get password() {
-    return this.loginForm.get('password');
-  }
 }
-
-
