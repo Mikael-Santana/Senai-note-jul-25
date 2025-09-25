@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+
+* { /*todos os elementos*/
+
+    padding: 0px; /*magem interna*/
+    margin: 0px; /* margem externa*/
+    box-sizing: border-box; /* muda a estrutura de espacamento */
+    font-family:inter;
+    
+
+}
