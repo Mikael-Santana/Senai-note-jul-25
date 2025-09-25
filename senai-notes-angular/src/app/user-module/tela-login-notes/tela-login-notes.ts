@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 @Component({
@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './tela-login-notes.html',
   styleUrls: ['./tela-login-notes.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class TelaLoginNotes implements OnInit {
   loginForm: FormGroup;
