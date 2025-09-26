@@ -75,8 +75,8 @@
             border-radius: 12px;
             box-shadow: 0 20px 40px var(--shadow-color);
             padding: 40px;
-            width: 100%;
-            max-width: 400px;
+            width: 35vw;
+            max-width: 700px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -230,7 +230,7 @@
         }
 
         .password-input {
-            padding-right: 50px;
+            padding-right: 20px;
         }
 
         .password-toggle {

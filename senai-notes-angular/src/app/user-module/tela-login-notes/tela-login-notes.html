@@ -1,7 +1,8 @@
 
 
 <div class="login-container">
-  <!-- Botão de Tema -->
+  <!-- Logo -->
+    <!-- Botão de Tema -->
   <button class="theme-toggle" (click)="toggleTheme()" type="button">
     <svg *ngIf="!isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path
@@ -14,17 +15,16 @@
       />
     </svg>
   </button>
-  <!-- Logo -->
   <div class="logo-section">
     <div class="logo"></div>
     <h1 class="logo-text">Senai Notes</h1>
   </div>
-  <h2 class="welcome-title">Welcome to Note</h2>
-  <p class="welcome-subtitle">Please log in to continue</p>
+  <h2 class="welcome-title">Bem-vindo ao Notes</h2>
+  <p class="welcome-subtitle">Por favor, faça login para continuar</p>
   <!-- Formulário -->
   <form [formGroup]="loginForm" (ngSubmit)="onLoginClick()">
     <div class="form-group">
-      <label class="form-label" for="email">Email Address</label>
+      <label class="form-label" for="email">Endereço de Email</label>
       <input
         type="email"
         id="email"
@@ -35,7 +35,7 @@
       <div *ngIf="emailErrorMessage" class="error-message">{{ emailErrorMessage }}</div>
     </div>
     <div class="form-group">
-      <label class="form-label" for="password">Password</label>
+      <label class="form-label" for="password">Senha</label>
       <div class="password-group">
         <input
           type="password"
@@ -46,11 +46,11 @@
         />
       </div>
       <div *ngIf="passwordErrorMessage" class="error-message">{{ passwordErrorMessage }}</div>
-      <div class="forgot-password"><a href="#" class="forgot-link">Forgot</a></div>
+      <div class="forgot-password"><a href="#" class="forgot-link">Esqueceu Senha ?</a></div>
     </div>
     <button type="submit" class="login-btn">Login</button>
     <div *ngIf="sucessoErrorMessage" class="success-message">{{ sucessoErrorMessage }}</div>
     <div *ngIf="incorretoErrorMessage" class="error-message">{{ incorretoErrorMessage }}</div>
   </form>
-  <div class="signup-section">No account yet? <a href="#" class="signup-link">Sign Up</a></div>
+  <div class="signup-section">Ainda não tem uma conta ?<a href="#" class="signup-link"> Registra-se</a></div>
 </div>

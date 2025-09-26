@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   styleUrls: ['./tela-login-notes.css'],
   encapsulation: ViewEncapsulation.None,
 })
+
 export class TelaLoginNotes implements OnInit {
   loginForm: FormGroup;
   emailErrorMessage: string = '';

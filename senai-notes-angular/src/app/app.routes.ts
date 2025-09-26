@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { TelaLoginNotes } from './user-module/tela-login-notes/tela-login-notes';
 import { NewUserNotes } from './user-module/new-user-notes/new-user-notes';
+import { AllNotes } from './user-module/all-notes/all-notes';
 
 
 export const routes: Routes = [
@@ -14,8 +15,15 @@ export const routes: Routes = [
         loadComponent: () => TelaLoginNotes,
         pathMatch: 'full' // ← aqui estava faltando a vírgula
     },
+      {
+        path: 'notes',
+        loadComponent: () => AllNotes,
+    
+       
+    },
     {
-        path: 'new',
+        path: 'cadastro',
         loadComponent: () => NewUserNotes
     }
+   
 ];
