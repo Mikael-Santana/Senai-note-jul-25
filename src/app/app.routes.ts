@@ -16,7 +16,7 @@ export const routes: Routes = [
         pathMatch: 'full' // ← aqui estava faltando a vírgula
     },
       {
-        path: 'notes',
+        path: 'chat',
         loadComponent: () => AllNotes,
     
        
