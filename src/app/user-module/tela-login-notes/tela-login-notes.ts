@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-tela-login-notes',
   standalone: true,
@@ -9,7 +11,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   styleUrls: ['./tela-login-notes.css'],
   encapsulation: ViewEncapsulation.None,
 })
-
 export class TelaLoginNotes implements OnInit {
   loginForm: FormGroup;
   emailErrorMessage: string = '';
@@ -18,12 +19,13 @@ export class TelaLoginNotes implements OnInit {
   incorretoErrorMessage: string = '';
   isDarkMode = false;
   
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
   }
+
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -33,14 +35,17 @@ export class TelaLoginNotes implements OnInit {
     }
     this.updateTheme();
   }
+
   toggleTheme(): void {
     this.isDarkMode = !this.isDarkMode;
     this.updateTheme();
     localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
   }
+
   private updateTheme(): void {
     document.body.classList.toggle('dark-mode', this.isDarkMode);
   }
+
   async onLoginClick(): Promise<void> {
     if (this.loginForm.invalid) {
       const emailVal = this.loginForm.get('email')?.value;
@@ -49,10 +54,12 @@ export class TelaLoginNotes implements OnInit {
       this.passwordErrorMessage = passVal ? '' : 'O campo de senha é obrigatório.';
       return;
     }
+
     this.emailErrorMessage = '';
     this.passwordErrorMessage = '';
     this.sucessoErrorMessage = '';
     this.incorretoErrorMessage = '';
+
     const { email, password } = this.loginForm.value;
     try {
       const response = await fetch('https://senai-gpt-api.azurewebsites.net/login', {
@@ -75,5 +82,10 @@ export class TelaLoginNotes implements OnInit {
       console.error(err);
       this.incorretoErrorMessage = 'Erro de conexão. Tente novamente.';
     }
+  }
+
+  // Função para ir para a tela de cadastro
+  goToRegister(): void {
+    this.router.navigate(['/cadastro']);
   }
 }

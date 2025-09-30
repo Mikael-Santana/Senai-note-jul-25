@@ -10,14 +10,14 @@ interface SignupData {
 
 @Component({
   selector: 'app-new-user-notes',
-  standalone: true,  // Para Angular 17+
+  standalone: true,
   imports: [
-    CommonModule,           // Para *ngIf, *ngFor, etc
-    ReactiveFormsModule,    // Para formulários reativos
-    RouterModule            // Para routerLink
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule
   ],
   templateUrl: './new-user-notes.html',
-  styleUrl: './new-user-notes.css'
+  styleUrls: ['./new-user-notes.css']
 })
 export class NewUserNotes implements OnInit {
   signupForm!: FormGroup;
@@ -25,6 +25,8 @@ export class NewUserNotes implements OnInit {
   passwordVisible: boolean = false;
   passwordValid: boolean = false;
   isLoading: boolean = false;
+  sucessoMessage: string = '';
+  erroMessage: string = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -36,27 +38,18 @@ export class NewUserNotes implements OnInit {
   }
   
   // ===== MÉTODOS DE INICIALIZAÇÃO =====
-  
   initializeForm(): void {
     this.signupForm = this.formBuilder.group({
-      email: ['', [
-        Validators.required,
-        Validators.email
-      ]],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8)
-      ]]
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
     
-    // Escutar mudanças no campo de senha para validação visual
     this.signupForm.get('password')?.valueChanges.subscribe(value => {
       this.validatePasswordLength(value);
     });
   }
   
   // ===== MÉTODOS DE INTERAÇÃO =====
-  
   togglePassword(): void {
     this.passwordVisible = !this.passwordVisible;
   }
@@ -71,9 +64,8 @@ export class NewUserNotes implements OnInit {
     this.passwordValid = password.length >= 8;
   }
   
-  // ===== MÉTODOS DE SUBMISSÃO =====
-  
-  onSubmitReactive(): void {
+  // ===== FUNÇÃO DE CADASTRO =====
+  async onSubmitReactive(): Promise<void> {
     if (this.signupForm.invalid) {
       Object.keys(this.signupForm.controls).forEach(key => {
         this.signupForm.get(key)?.markAsTouched();
@@ -82,14 +74,35 @@ export class NewUserNotes implements OnInit {
     }
     
     const formData: SignupData = this.signupForm.value;
-    console.log('Dados enviados:', formData);
+    this.isLoading = true;
+    this.sucessoMessage = '';
+    this.erroMessage = '';
+    
+    try {
+      const response = await fetch('https://senai-gpt-api.azurewebsites.net/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-    // Aqui você pode redirecionar para outra página se quiser:
-    // this.router.navigate(['/login']);
+      if (response.ok) {
+        this.sucessoMessage = 'Cadastro realizado com sucesso!';
+        setTimeout(() => {
+          this.router.navigate(['/login']); // redireciona para login
+        }, 1500);
+      } else {
+        const json = await response.json();
+        this.erroMessage = json.message || 'Erro ao cadastrar usuário.';
+      }
+    } catch (err) {
+      console.error(err);
+      this.erroMessage = 'Erro de conexão. Tente novamente.';
+    } finally {
+      this.isLoading = false;
+    }
   }
   
   // ===== MÉTODOS AUXILIARES =====
-  
   get f() {
     return this.signupForm.controls;
   }

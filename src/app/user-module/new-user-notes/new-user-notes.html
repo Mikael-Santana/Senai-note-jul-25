@@ -59,6 +59,14 @@
       </div>
     </div>
 
+    <!-- Mensagens de sucesso e erro -->
+    <div *ngIf="sucessoMessage" class="success-message">
+      {{ sucessoMessage }}
+    </div>
+    <div *ngIf="erroMessage" class="error-message">
+      {{ erroMessage }}
+    </div>
+
     <!-- Botão de Submit -->
     <button type="submit" class="submit-button" [disabled]="isLoading">
       {{ isLoading ? 'Loading...' : 'Sign up' }}
@@ -70,4 +78,3 @@
     Already have an account? <a routerLink="/login">Login</a>
   </div>
 </div>
-
