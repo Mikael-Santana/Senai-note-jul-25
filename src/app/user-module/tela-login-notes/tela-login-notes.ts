@@ -13,12 +13,12 @@ import { Router } from '@angular/router';
 })
 export class TelaLoginNotes implements OnInit {
   loginForm: FormGroup;
-  emailErrorMessage: string = '';
-  passwordErrorMessage: string = '';
-  sucessoErrorMessage: string = '';
-  incorretoErrorMessage: string = '';
+  emailErrorMessage = '';
+  passwordErrorMessage = '';
+  sucessoErrorMessage = '';
+  incorretoErrorMessage = '';
   isDarkMode = false;
-  
+
   constructor(private fb: FormBuilder, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -28,11 +28,7 @@ export class TelaLoginNotes implements OnInit {
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.isDarkMode = savedTheme === 'dark';
-    } else {
-      this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
+    this.isDarkMode = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
     this.updateTheme();
   }
 
@@ -61,20 +57,24 @@ export class TelaLoginNotes implements OnInit {
     this.incorretoErrorMessage = '';
 
     const { email, password } = this.loginForm.value;
+
     try {
       const response = await fetch('https://senai-gpt-api.azurewebsites.net/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+
       if (response.ok) {
-        this.sucessoErrorMessage = 'Login realizado com sucesso!';
         const json = await response.json();
         const meuToken = json.accessToken;
         const meuId = json.user?.id;
+
         localStorage.setItem('meuToken', meuToken ?? '');
         if (meuId != null) localStorage.setItem('meuId', String(meuId));
-        window.location.href = 'chat';
+
+        this.sucessoErrorMessage = 'Login realizado com sucesso!';
+        this.router.navigate(['/chat']); // ✅ redirecionamento correto
       } else {
         this.incorretoErrorMessage = 'E-mail ou senha incorretos.';
       }
@@ -84,7 +84,6 @@ export class TelaLoginNotes implements OnInit {
     }
   }
 
-  // Função para ir para a tela de cadastro
   goToRegister(): void {
     this.router.navigate(['/cadastro']);
   }

@@ -1,11 +1,9 @@
-<!-- Substituí todos os acessos diretos a propriedades opcionais por navegação segura -->
+<!-- Container principal -->
 <div [class]="darkMode ? 'app-container dark' : 'app-container light'">
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon"></div>
-      </div>
+      <div class="logo"><div class="logo-icon"></div></div>
       <h1>Senai Notes</h1>
     </div>
 
@@ -16,19 +14,20 @@
       </button>
     </div>
 
+    <!-- Lista de notas -->
     <div class="notes-list">
       <button
-        *ngFor="let note of notes"
+        *ngFor="let note of filteredNotes"
         [class.active]="selectedNote === note.id"
         (click)="selectNote(note.id)"
         class="note-item"
       >
-        <div [class]="'note-icon ' + note.color">
+        <div [class]="'note-icon ' + (note.color || '')">
           <span class="icon">{{ note.icon }}</span>
         </div>
         <div class="note-info">
           <h3>{{ note.title }}</h3>
-          <div class="note-tags" *ngIf="note.tags.length > 0">
+          <div class="note-tags" *ngIf="note.tags && note.tags.length > 0">
             <span *ngFor="let tag of note.tags" class="tag">{{ tag }}</span>
           </div>
           <p class="note-date">{{ note.date }}</p>
@@ -49,28 +48,26 @@
           class="search-input"
         />
       </div>
+
       <button (click)="toggleDarkMode()" class="btn-theme">
         <span *ngIf="darkMode">☀️</span>
         <span *ngIf="!darkMode">🌙</span>
       </button>
+      <button class="btn-logout" (click)="logout()">🚪 Logout</button>
     </div>
 
-    <!-- Note Viewer/Editor -->
-    <div class="note-viewer" *ngIf="currentNote?.content; else noContent">
+    <!-- Note Viewer/Editor: usa 'currentNote as note' para tipo seguro -->
+    <div class="note-viewer" *ngIf="currentNote as note; else noContent">
       <div class="note-container">
-        <div class="note-banner" [style.background]="currentNote?.content?.banner">
+        <div class="note-banner" [style.background]="note.content.banner">
           <div class="banner-circles">
             <div class="circle circle-1"></div>
             <div class="circle circle-2"></div>
           </div>
-          <!-- <div class="watermark">
-            <span class="watermark-icon">🚩</span>
-            <span class="watermark-text">Renata Santos</span>
-          </div> -->
         </div>
 
         <!-- Editor Mode -->
-        <div *ngIf="editMode" class="note-editor">
+        <div *ngIf="editMode; else viewMode" class="note-editor">
           <input
             type="text"
             [(ngModel)]="editingTitle"
@@ -82,8 +79,9 @@
             <div class="meta-item">
               <span class="meta-icon">🕒</span>
               <span class="meta-label">Last edited</span>
-              <span class="meta-value">{{ currentNote?.content?.lastEdited }}</span>
+              <span class="meta-value">{{ note.content.lastEdited }}</span>
             </div>
+
             <div class="meta-item">
               <span class="meta-icon">🏷️</span>
               <span class="meta-label">Tags</span>
@@ -91,15 +89,8 @@
                 class="tag-select"
                 (change)="addTag($any($event.target).value); $any($event.target).value = ''"
               >
-                <option value="">Select a tag from the list of options</option>
-                <option value="Dev">Dev</option>
-                <option value="React">React</option>
-                <option value="Travel">Travel</option>
-                <option value="Personal">Personal</option>
-                <option value="Cooking">Cooking</option>
-                <option value="Health">Health</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Recipes">Recipes</option>
+                <option value="">Select a tag</option>
+                <option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</option>
               </select>
             </div>
           </div>
@@ -116,43 +107,41 @@
             placeholder="Start typing your note here..."
             class="body-input"
           ></textarea>
+
+          <div class="note-actions">
+            <button class="btn-save" (click)="saveNote()">Save Note</button>
+            <button class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+          </div>
         </div>
 
         <!-- View Mode -->
-        <div *ngIf="!editMode" class="note-view" (dblclick)="enableEditMode()">
-          <h1 class="note-title">{{ currentNote?.content?.title }}</h1>
+        <ng-template #viewMode>
+          <div class="note-view" (dblclick)="enableEditMode()">
+            <h1 class="note-title">{{ note.content.title }}</h1>
 
-          <div class="note-meta">
-            <div class="meta-item">
-              <span class="meta-icon">🏷️</span>
-              <span class="meta-label">Tags</span>
-              <span *ngFor="let tag of currentNote?.content?.tags" class="meta-value">
-                {{ tag }}
-              </span>
-              <span
-                *ngIf="(currentNote?.content?.tags?.length ?? 0) === 0"
-                class="meta-value-empty"
-              >
-                No tags
-              </span>
+            <div class="note-meta">
+              <div class="meta-item">
+                <span class="meta-icon">🏷️</span>
+                <span class="meta-label">Tags</span>
+                <span *ngFor="let tag of note.content.tags" class="meta-value">{{ tag }}</span>
+                <span *ngIf="!note.content.tags || note.content.tags.length === 0" class="meta-value-empty">No tags</span>
+              </div>
+
+              <div class="meta-item">
+                <span class="meta-icon">🕒</span>
+                <span class="meta-label">Last edited</span>
+                <span class="meta-value">{{ note.content.lastEdited }}</span>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-icon">🕒</span>
-              <span class="meta-label">Last edited</span>
-              <span class="meta-value">{{ currentNote?.content?.lastEdited }}</span>
+
+            <div class="note-body">{{ note.content.body }}</div>
+
+            <div class="note-actions">
+              <button class="btn-edit" (click)="enableEditMode()">Edit Note</button>
+              <button class="btn-delete" (click)="deleteNote(note.id)">Delete</button>
             </div>
           </div>
-
-          <div class="note-body">{{ currentNote?.content?.body }}</div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="note-actions">
-          <button *ngIf="!editMode" class="btn-edit" (click)="enableEditMode()">Edit Note</button>
-          <button *ngIf="editMode" class="btn-save" (click)="saveNote()">Save Note</button>
-          <button *ngIf="editMode" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
-          <button *ngIf="!editMode" class="btn-delete" (click)="deleteNote()">Delete</button>
-        </div>
+        </ng-template>
       </div>
     </div>
 

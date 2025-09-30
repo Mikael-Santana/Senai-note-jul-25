@@ -777,3 +777,40 @@
     font-size: 24px
   }
 }
+
+.btn-logout {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark Mode */
+.dark .btn-logout {
+  background-color: #ef4444; /* Vermelho vivo para destaque */
+  color: #fff;
+}
+
+.dark .btn-logout:hover {
+  background-color: #dc2626; /* Tom mais escuro no hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Light Mode */
+.light .btn-logout {
+  background-color: #f87171; /* Vermelho claro */
+  color: #fff;
+}
+
+.light .btn-logout:hover {
+  background-color: #ef4444; /* Tom mais escuro no hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}

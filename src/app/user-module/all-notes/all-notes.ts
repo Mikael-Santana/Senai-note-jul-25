@@ -1,21 +1,24 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+interface NoteContent {
+  banner: string;
+  title: string;
+  lastEdited: string;
+  tags: string[];
+  body: string;
+}
 
 interface Note {
   id: number;
   title: string;
-  tags: string[];
-  date: string;
   icon: string;
   color: string;
-  content?: {
-    banner: string;
-    title: string;
-    lastEdited: string;
-    tags: string[];
-    body: string;
-  };
+  date: string;
+  tags: string[];
+  content: NoteContent; // agora obrigatório (não opcional)
 }
 
 @Component({
@@ -23,17 +26,9 @@ interface Note {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './all-notes.html',
-  styleUrls: ['./all-notes.css'] // Corrigido: styleUrl → styleUrls
+  styleUrls: ['./all-notes.css']
 })
 export class AllNotes {
-  darkMode: boolean = true;
-  selectedNote: number = 0;
-  searchQuery: string = '';
-  editMode: boolean = false;
-  editingTitle: string = '';
-  editingBody: string = '';
-  editingTags: string[] = [];
-
   notes: Note[] = [
     {
       id: 0,
@@ -62,22 +57,7 @@ export class AllNotes {
         title: 'Japan Travel Planning',
         lastEdited: '28 Oct 2024',
         tags: ['Travel', 'Personal'],
-        body: `Planning my trip to Japan!
-
-🗾 Cities to Visit:
-- Tokyo (5 days)
-- Kyoto (3 days)
-- Osaka (2 days)
-
-📝 Things to do:
-- Visit temples and shrines
-- Try authentic ramen
-- Experience onsen
-- See cherry blossoms
-
-💰 Budget: $3000
-✈️ Flight: Booked
-🏨 Hotels: Need to book`
+        body: 'Planning my trip to Japan!\n\n🗾 Cities to Visit: ...'
       }
     },
     {
@@ -92,28 +72,7 @@ export class AllNotes {
         title: 'Favorite Pasta Recipes',
         lastEdited: '27 Oct 2024',
         tags: ['Cooking', 'Recipes'],
-        body: `My favorite pasta recipes collection
-
-1. Carbonara
-- 400g spaghetti
-- 200g guanciale
-- 4 egg yolks
-- Pecorino Romano
-- Black pepper
-
-2. Aglio e Olio
-- Spaghetti
-- Garlic
-- Olive oil
-- Red pepper flakes
-- Parsley
-
-3. Pesto Pasta
-- Basil
-- Pine nuts
-- Parmesan
-- Garlic
-- Olive oil`
+        body: '1. Carbonara - 400g spaghetti - 200g guanciale - 4 egg yolks - Pecorino Romano - Black pepper\n2. Aglio e Olio - Spaghetti - Garlic - Olive oil - Red pepper flakes - Parsley\n3. Pesto Pasta - Basil - Pine nuts - Parmesan - Garlic - Olive oil'
       }
     },
     {
@@ -128,22 +87,7 @@ export class AllNotes {
         title: 'Weekly Workout Plan',
         lastEdited: '25 Oct 2024',
         tags: ['Dev', 'React'],
-        body: `My weekly fitness routine
-
-Monday: Upper Body
-- Bench Press 4x10
-- Pull-ups 3x12
-- Shoulder Press 3x10
-
-Wednesday: Lower Body
-- Squats 4x10
-- Deadlifts 3x8
-- Lunges 3x12
-
-Friday: Full Body
-- Clean and Press
-- Burpees
-- Mountain Climbers`
+        body: 'Monday: Upper Body - Bench Press 4x10 - Pull-ups 3x12 - Shoulder Press 3x10\nWednesday: Lower Body - Squats 4x10 - Deadlifts 3x8 - Lunges 3x12\nFriday: Full Body - Clean and Press - Burpees - Mountain Climbers'
       }
     },
     {
@@ -152,7 +96,14 @@ Friday: Full Body
       tags: ['Cooking', 'Health', 'Recipes'],
       date: '12 Oct 2024',
       icon: '🍽️',
-      color: 'red'
+      color: 'red',
+      content: {
+        banner: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
+        title: 'Meal Prep Ideas',
+        lastEdited: '12 Oct 2024',
+        tags: ['Cooking', 'Health', 'Recipes'],
+        body: 'Ideas for weekly meal prep:\n- Breakfast: Overnight oats, Smoothie bowls\n- Lunch: Chicken quinoa salad, Veggie wraps\n- Dinner: Baked salmon, Stir-fried vegetables\n- Snacks: Nuts, Fruits, Yogurt'
+      }
     },
     {
       id: 5,
@@ -160,7 +111,14 @@ Friday: Full Body
       tags: ['Personal', 'Dev'],
       date: '05 Oct 2024',
       icon: '📚',
-      color: 'indigo'
+      color: 'indigo',
+      content: {
+        banner: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+        title: 'Reading List',
+        lastEdited: '05 Oct 2024',
+        tags: ['Personal', 'Dev'],
+        body: 'Books to read:\n1. Clean Code - Robert C. Martin\n2. The Pragmatic Programmer - Andrew Hunt\n3. Deep Work - Cal Newport\n4. Atomic Habits - James Clear'
+      }
     },
     {
       id: 6,
@@ -168,31 +126,83 @@ Friday: Full Body
       tags: ['Fitness', 'Health', 'Personal'],
       date: '22 Sep 2024',
       icon: '🎯',
-      color: 'gray'
+      color: 'gray',
+      content: {
+        banner: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+        title: 'Fitness Goals 2025',
+        lastEdited: '22 Sep 2024',
+        tags: ['Fitness', 'Health', 'Personal'],
+        body: 'Goals for next year:\n- Lose 5kg\n- Run a half marathon\n- Workout 4 times a week\n- Maintain healthy diet\n- Track progress monthly'
+      }
     }
   ];
 
-  get currentNote(): Note | undefined {
-    return this.notes.find(note => note.id === this.selectedNote);
-  }
+  // UI / edição
+  selectedNote: number | null = this.notes.length ? this.notes[0].id : null;
+  darkMode = true;
+  editMode = false;
 
-  toggleDarkMode(): void {
-    this.darkMode = !this.darkMode;
-  }
+  // edição temporária
+  editingTitle = '';
+  editingBody = '';
+  editingTags: string[] = [];
 
-  selectNote(id: number): void {
-    this.selectedNote = id;
-    this.editMode = false;
-    const note = this.currentNote;
-    if (note?.content) {
-      this.editingTitle = note.content.title;
-      this.editingBody = note.content.body;
-      this.editingTags = [...note.content.tags];
+  // busca / tags disponíveis
+  searchQuery = '';
+  availableTags: string[] = ['Dev', 'React', 'Travel', 'Personal', 'Cooking', 'Health', 'Fitness', 'Recipes'];
+
+  constructor(private router: Router) {
+    // tenta carregar preferência de tema
+    try {
+      const stored = localStorage.getItem('darkMode');
+      if (stored !== null) this.darkMode = JSON.parse(stored);
+    } catch { }
+    // inicializa editor com a nota selecionada
+    if (this.selectedNote !== null) {
+      const n = this.currentNote;
+      if (n) {
+        this.editingTitle = n.content.title;
+        this.editingBody = n.content.body;
+        this.editingTags = [...n.content.tags];
+      }
     }
   }
 
-  createNewNote(): void {
-    const newId = Math.max(...this.notes.map(n => n.id)) + 1;
+  // getter que o template usa para mostrar a nota atual
+  get currentNote(): Note | undefined {
+    return this.notes.find(n => n.id === this.selectedNote!);
+  }
+
+  // notas filtradas pela searchQuery (usado no *ngFor)
+  get filteredNotes(): Note[] {
+    const q = this.searchQuery?.trim().toLowerCase();
+    if (!q) return this.notes;
+    return this.notes.filter(n =>
+      n.title.toLowerCase().includes(q) ||
+      n.content.body.toLowerCase().includes(q) ||
+      n.tags.some(t => t.toLowerCase().includes(q)) ||
+      n.content.tags.some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  // Ações
+  selectNote(id: number) {
+    this.selectedNote = id;
+    const note = this.currentNote;
+    this.editMode = false;
+    if (note) {
+      this.editingTitle = note.content.title;
+      this.editingBody = note.content.body;
+      this.editingTags = [...note.content.tags];
+    } else {
+      this.editingTitle = '';
+      this.editingBody = '';
+      this.editingTags = [];
+    }
+  }
+
+  createNewNote() {
+    const newId = this.notes.length ? Math.max(...this.notes.map(n => n.id)) + 1 : 0;
     const newNote: Note = {
       id: newId,
       title: 'Untitled Note',
@@ -203,75 +213,88 @@ Friday: Full Body
       content: {
         banner: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
         title: 'Enter a title...',
-        lastEdited: 'Not yet saved',
+        lastEdited: this.getCurrentDate(),
         tags: [],
-        body: 'Start typing your note here...'
+        body: ''
       }
     };
-    
-    this.notes.unshift(newNote); // Adiciona no início da lista
-    this.selectedNote = newId;
+    this.notes.unshift(newNote);
+    this.selectNote(newId);
+    this.enableEditMode();
+  }
+
+  enableEditMode() {
+    const note = this.currentNote;
+    if (!note) return;
     this.editMode = true;
-    this.editingTitle = newNote.content!.title;
-    this.editingBody = newNote.content!.body;
-    this.editingTags = [];
+    this.editingTitle = note.content.title;
+    this.editingBody = note.content.body;
+    this.editingTags = [...note.content.tags];
   }
 
-  saveNote(): void {
+  cancelEdit() {
     const note = this.currentNote;
-    if (note && note.content) {
-      note.content.title = this.editingTitle;
-      note.content.body = this.editingBody;
-      note.content.tags = this.editingTags;
-      note.content.lastEdited = this.getCurrentDate();
-      note.title = this.editingTitle;
-      note.tags = this.editingTags;
-      note.date = this.getCurrentDate();
-      this.editMode = false;
-      console.log('Note saved successfully!');
-    }
-  }
-
-  cancelEdit(): void {
-    this.editMode = false;
-    const note = this.currentNote;
-    if (note?.content) {
+    if (note) {
       this.editingTitle = note.content.title;
       this.editingBody = note.content.body;
       this.editingTags = [...note.content.tags];
     }
+    this.editMode = false;
   }
 
-  enableEditMode(): void {
-    this.editMode = true;
+  saveNote() {
+    const note = this.currentNote;
+    if (!note) return;
+    note.content.title = this.editingTitle || 'Untitled Note';
+    note.content.body = this.editingBody;
+    note.content.tags = [...this.editingTags];
+    note.content.lastEdited = this.getCurrentDate();
+    note.title = note.content.title;
+    note.tags = [...this.editingTags];
+    note.date = this.getCurrentDate();
+    this.editMode = false;
   }
 
-  deleteNote(): void {
-    if (confirm('Are you sure you want to delete this note?')) {
-      this.notes = this.notes.filter(note => note.id !== this.selectedNote);
-      if (this.notes.length > 0) {
-        this.selectedNote = this.notes[0].id;
+  addTag(tag: string) {
+    const t = (tag || '').trim();
+    if (!t) return;
+    if (!this.editingTags.includes(t)) this.editingTags.push(t);
+  }
+
+  removeTag(tag: string) {
+    this.editingTags = this.editingTags.filter(t => t !== tag);
+  }
+
+  deleteNote(noteId: number) {
+    this.notes = this.notes.filter(n => n.id !== noteId);
+    if (this.selectedNote === noteId) {
+      if (this.notes.length) {
+        this.selectNote(this.notes[0].id);
+      } else {
+        this.selectedNote = null;
+        this.editMode = false;
       }
     }
   }
 
+  logout() {
+    localStorage.removeItem('meuTokem');
+    localStorage.removeItem('meuId');
+    this.router.navigate(['/login']);
+  }
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem('darkMode', JSON.stringify(this.darkMode));
+  }
+
   getCurrentDate(): string {
     const date = new Date();
-    const options: Intl.DateTimeFormatOptions = { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     };
     return date.toLocaleDateString('en-GB', options);
-  }
-
-  addTag(tag: string): void {
-    if (tag && !this.editingTags.includes(tag)) {
-      this.editingTags.push(tag);
-    }
-  }
-
-  removeTag(tag: string): void {
-    this.editingTags = this.editingTags.filter(t => t !== tag);
   }
 }
