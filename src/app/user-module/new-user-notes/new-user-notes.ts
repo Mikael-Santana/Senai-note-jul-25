@@ -132,7 +132,7 @@ export class NewUserNotes {
         // Trata erros da API
         const errorData = await response.json().catch(() => ({}));
         
-        if (response.status === 409) {
+        if (response.status === 400) {
           alert('This email is already registered. Please use a different email or login.');
         } else if (response.status === 400) {
           alert('Invalid data. Please check your information and try again.');

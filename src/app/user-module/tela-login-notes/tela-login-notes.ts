@@ -28,7 +28,15 @@ export class TelaLoginNotes implements OnInit {
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme');
-    this.isDarkMode = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    // Define como padrão o modo claro
+    if (savedTheme) {
+      this.isDarkMode = savedTheme === 'dark';
+    } else {
+      this.isDarkMode = false; // Começa no claro
+      localStorage.setItem('theme', 'light');
+    }
+
     this.updateTheme();
   }
 
@@ -41,6 +49,7 @@ export class TelaLoginNotes implements OnInit {
   private updateTheme(): void {
     document.body.classList.toggle('dark-mode', this.isDarkMode);
   }
+
 
   async onLoginClick(): Promise<void> {
     if (this.loginForm.invalid) {

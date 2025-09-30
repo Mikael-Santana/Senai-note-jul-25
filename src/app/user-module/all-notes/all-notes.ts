@@ -139,8 +139,8 @@ export class AllNotes {
 
   // UI / edição
   selectedNote: number | null = this.notes.length ? this.notes[0].id : null;
-  darkMode = true;
-  editMode = false;
+  darkMode = false;
+  editMode = true;
 
   // edição temporária
   editingTitle = '';
