@@ -15,6 +15,22 @@
 
   <!-- Formulário Angular Reativo -->
   <form [formGroup]="signupForm" (ngSubmit)="onSubmitReactive()">
+    <!-- Campo de Nome -->
+    <div class="form-group">
+      <label for="nome" class="form-label">Full Name</label>
+      <input
+        type="text"
+        id="nome"
+        formControlName="nome"
+        class="form-input"
+        [class.error]="hasError('nome')"
+        placeholder="João"
+      />
+      <div *ngIf="hasError('nome')" class="error-message">
+        {{ getErrorMessage('nome') }}
+      </div>
+    </div>
+
     <!-- Campo de Email -->
     <div class="form-group">
       <label for="email" class="form-label">Email Address</label>
@@ -23,9 +39,10 @@
         id="email"
         formControlName="email"
         class="form-input"
+        [class.error]="hasError('email')"
         placeholder="email@example.com"
       />
-      <div *ngIf="hasError('email')" class="error">
+      <div *ngIf="hasError('email')" class="error-message">
         {{ getErrorMessage('email') }}
       </div>
     </div>
@@ -39,6 +56,7 @@
           id="password"
           formControlName="password"
           class="form-input"
+          [class.error]="hasError('password')"
           placeholder="Enter your password"
           (input)="onPasswordInput($event)"
         />
@@ -47,29 +65,21 @@
           class="password-toggle"
           (click)="togglePassword()"
         >
-          <span class="eye-icon"></span>
+          {{ passwordVisible ? '🙈' : '👁️' }}
         </button>
       </div>
       <div class="password-requirements">
         <span class="requirement-icon" [class.valid]="passwordValid"></span>
         <span>At least 8 characters</span>
       </div>
-      <div *ngIf="hasError('password')" class="error">
+      <div *ngIf="hasError('password')" class="error-message">
         {{ getErrorMessage('password') }}
       </div>
     </div>
 
-    <!-- Mensagens de sucesso e erro -->
-    <div *ngIf="sucessoMessage" class="success-message">
-      {{ sucessoMessage }}
-    </div>
-    <div *ngIf="erroMessage" class="error-message">
-      {{ erroMessage }}
-    </div>
-
     <!-- Botão de Submit -->
     <button type="submit" class="submit-button" [disabled]="isLoading">
-      {{ isLoading ? 'Loading...' : 'Sign up' }}
+      <span>{{ isLoading ? 'Creating account...' : 'Sign up' }}</span>
     </button>
   </form>
 
