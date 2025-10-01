@@ -13,6 +13,14 @@
     Sign up to start organizing your notes and boost your productivity.
   </p>
 
+  <!-- Mensagens de sucesso/erro -->
+  <div *ngIf="sucessLogin" class="success-message">
+    {{ sucessLogin }}
+  </div>
+  <div *ngIf="errorLogin" class="error-message-global">
+    {{ errorLogin }}
+  </div>
+
   <!-- Formulário Angular Reativo -->
   <form [formGroup]="signupForm" (ngSubmit)="onSubmitReactive()">
     <!-- Campo de Nome -->
@@ -23,11 +31,11 @@
         id="nome"
         formControlName="nome"
         class="form-input"
-        [class.error]="hasError('nome')"
-        placeholder="João"
+        [class.error]="nomeErrorMessage !== ''"
+        placeholder="John Doe"
       />
-      <div *ngIf="hasError('nome')" class="error-message">
-        {{ getErrorMessage('nome') }}
+      <div *ngIf="nomeErrorMessage" class="error-message">
+        {{ nomeErrorMessage }}
       </div>
     </div>
 
@@ -39,11 +47,11 @@
         id="email"
         formControlName="email"
         class="form-input"
-        [class.error]="hasError('email')"
+        [class.error]="emailErrorMessage !== ''"
         placeholder="email@example.com"
       />
-      <div *ngIf="hasError('email')" class="error-message">
-        {{ getErrorMessage('email') }}
+      <div *ngIf="emailErrorMessage" class="error-message">
+        {{ emailErrorMessage }}
       </div>
     </div>
 
@@ -56,7 +64,7 @@
           id="password"
           formControlName="password"
           class="form-input"
-          [class.error]="hasError('password')"
+          [class.error]="passwordErrorMessage !== ''"
           placeholder="Enter your password"
           (input)="onPasswordInput($event)"
         />
@@ -72,8 +80,8 @@
         <span class="requirement-icon" [class.valid]="passwordValid"></span>
         <span>At least 8 characters</span>
       </div>
-      <div *ngIf="hasError('password')" class="error-message">
-        {{ getErrorMessage('password') }}
+      <div *ngIf="passwordErrorMessage" class="error-message">
+        {{ passwordErrorMessage }}
       </div>
     </div>
 
