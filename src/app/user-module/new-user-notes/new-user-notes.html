@@ -1,9 +1,16 @@
+<div class="fundo">
 <div class="form-container">
   <!-- Logo e nome da aplicação -->
   <div class="logo-section">
     <div class="logo">
       <div class="logo-icon"></div>
       <span class="logo-text">Senai Notes</span>
+      <div class="button-container">
+        <button type="button" class="dark-toggle" (click)="ligarDesligarDarkMode()">
+          <span class="icon">{{ darkMode ? '☀️' : '🌙' }}</span>
+          <span class="label">{{ darkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -26,14 +33,8 @@
     <!-- Campo de Nome -->
     <div class="form-group">
       <label for="nome" class="form-label">Full Name</label>
-      <input
-        type="text"
-        id="nome"
-        formControlName="nome"
-        class="form-input"
-        [class.error]="nomeErrorMessage !== ''"
-        placeholder="John Doe"
-      />
+      <input type="text" id="nome" formControlName="nome" class="form-input" [class.error]="nomeErrorMessage !== ''"
+        placeholder="João" />
       <div *ngIf="nomeErrorMessage" class="error-message">
         {{ nomeErrorMessage }}
       </div>
@@ -42,14 +43,8 @@
     <!-- Campo de Email -->
     <div class="form-group">
       <label for="email" class="form-label">Email Address</label>
-      <input
-        type="email"
-        id="email"
-        formControlName="email"
-        class="form-input"
-        [class.error]="emailErrorMessage !== ''"
-        placeholder="email@example.com"
-      />
+      <input type="email" id="email" formControlName="email" class="form-input" [class.error]="emailErrorMessage !== ''"
+        placeholder="email@example.com" />
       <div *ngIf="emailErrorMessage" class="error-message">
         {{ emailErrorMessage }}
       </div>
@@ -59,20 +54,10 @@
     <div class="form-group">
       <label for="password" class="form-label">Password</label>
       <div class="password-container">
-        <input
-          [type]="passwordVisible ? 'text' : 'password'"
-          id="password"
-          formControlName="password"
-          class="form-input"
-          [class.error]="passwordErrorMessage !== ''"
-          placeholder="Enter your password"
-          (input)="onPasswordInput($event)"
-        />
-        <button
-          type="button"
-          class="password-toggle"
-          (click)="togglePassword()"
-        >
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" formControlName="password"
+          class="form-input" [class.error]="passwordErrorMessage !== ''" placeholder="Enter your password"
+          (input)="onPasswordInput($event)" />
+        <button type="button" class="password-toggle" (click)="togglePassword()">
           {{ passwordVisible ? '🙈' : '👁️' }}
         </button>
       </div>
@@ -95,4 +80,5 @@
   <div class="login-link">
     Already have an account? <a routerLink="/login">Login</a>
   </div>
+</div>
 </div>

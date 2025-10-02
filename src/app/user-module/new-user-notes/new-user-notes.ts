@@ -20,6 +20,7 @@ export class NewUserNotes {
   passwordVisible: boolean;
   passwordValid: boolean;
   isLoading: boolean;
+  darkMode:boolean =false
 
   constructor(private fb: FormBuilder) {
     this.signupForm = this.fb.group({
@@ -43,6 +44,20 @@ export class NewUserNotes {
     this.passwordVisible = false;
     this.passwordValid = false;
     this.isLoading = false;
+  }
+
+   ngOnInit() {
+    let darkModeLocalStorage = localStorage.getItem("darkMode");
+    if (darkModeLocalStorage === "true") {
+      this.darkMode = true;
+      document.body.classList.toggle("dark-mode", this.darkMode);
+    }
+  }
+
+  ligarDesligarDarkMode(){  
+    this.darkMode=!this.darkMode
+    document.body.classList.toggle("dark-mode")
+    localStorage.setItem("darkMode", this.darkMode.toString())
   }
 
   // Verifica se um campo tem erro (para compatibilidade com o HTML)
