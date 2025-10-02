@@ -1,0 +1,11 @@
+{   
+    "notas" :[  {
+        "titulo":"Titulo da nota",
+        "descrição":"Descrição da nota",
+        "usuarioId":1,
+        "tags": [   
+            "Tag 1"
+        ]
+    }
+ ]
+}
