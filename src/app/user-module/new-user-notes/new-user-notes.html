@@ -32,7 +32,7 @@
   <form [formGroup]="signupForm" (ngSubmit)="onSubmitReactive()">
     <!-- Campo de Nome -->
     <div class="form-group">
-      <label for="nome" class="form-label">Full Name</label>
+      <label for="nome" class="form-label">Nome</label>
       <input type="text" id="nome" formControlName="nome" class="form-input" [class.error]="nomeErrorMessage !== ''"
         placeholder="João" />
       <div *ngIf="nomeErrorMessage" class="error-message">
@@ -42,9 +42,9 @@
 
     <!-- Campo de Email -->
     <div class="form-group">
-      <label for="email" class="form-label">Email Address</label>
+      <label for="email" class="form-label">Endereço de email</label>
       <input type="email" id="email" formControlName="email" class="form-input" [class.error]="emailErrorMessage !== ''"
-        placeholder="email@example.com" />
+        placeholder="email@exemplo.com" />
       <div *ngIf="emailErrorMessage" class="error-message">
         {{ emailErrorMessage }}
       </div>
@@ -52,10 +52,10 @@
 
     <!-- Campo de Senha -->
     <div class="form-group">
-      <label for="password" class="form-label">Password</label>
+      <label for="password" class="form-label">Senha</label>
       <div class="password-container">
         <input [type]="passwordVisible ? 'text' : 'password'" id="password" formControlName="password"
-          class="form-input" [class.error]="passwordErrorMessage !== ''" placeholder="Enter your password"
+          class="form-input" [class.error]="passwordErrorMessage !== ''" placeholder="Digite sua senha"
           (input)="onPasswordInput($event)" />
         <button type="button" class="password-toggle" (click)="togglePassword()">
           {{ passwordVisible ? '🙈' : '👁️' }}
