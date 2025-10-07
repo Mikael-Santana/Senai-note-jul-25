@@ -22,7 +22,9 @@
         class="nav-item"
         [class.active]="viewMode === 'archived'"
         (click)="viewMode = 'archived'">
-        <span class="nav-icon">📦</span>
+        <span class="nav-icon">
+          <fa-icon [icon]="faBox"></fa-icon>
+        </span>
         Archived Notes
       </button>
     </nav>
