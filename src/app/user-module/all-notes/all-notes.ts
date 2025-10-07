@@ -1,300 +1,348 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faBox, faPenToSquare, faHouse } from '@fortawesome/free-solid-svg-icons';
 
-interface NoteContent {
-  banner: string;
-  title: string;
-  lastEdited: string;
+// Interface que define o formato de uma Nota
+interface INote {
+  id?: number;
+  titulo: string;
+  descricao: string;
+  usuarioId: number;
   tags: string[];
-  body: string;
-}
-
-interface Note {
-  id: number;
-  title: string;
-  icon: string;
-  color: string;
-  date: string;
-  tags: string[];
-  content: NoteContent; // agora obrigatório (não opcional)
+  imagemUrl?: string;
+  dataEdicao?: string;
 }
 
 @Component({
   selector: 'app-all-notes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
   templateUrl: './all-notes.html',
   styleUrls: ['./all-notes.css']
 })
 export class AllNotes {
-  notes: Note[] = [
-    {
-      id: 0,
-      title: 'Untitled Note',
-      tags: [],
-      date: this.getCurrentDate(),
-      icon: '📝',
-      color: 'gray',
-      content: {
-        banner: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-        title: 'Enter a title...',
-        lastEdited: 'Not yet saved',
-        tags: [],
-        body: 'Start typing your note here...'
-      }
-    },
-    {
-      id: 1,
-      title: 'Japan Travel Planning',
-      tags: ['Travel', 'Personal'],
-      date: '28 Oct 2024',
-      icon: '✈️',
-      color: 'pink',
-      content: {
-        banner: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',
-        title: 'Japan Travel Planning',
-        lastEdited: '28 Oct 2024',
-        tags: ['Travel', 'Personal'],
-        body: 'Planning my trip to Japan!\n\n🗾 Cities to Visit: ...'
-      }
-    },
-    {
-      id: 2,
-      title: 'Favorite Pasta Recipes',
-      tags: ['Cooking', 'Recipes'],
-      date: '27 Oct 2024',
-      icon: '🍝',
-      color: 'orange',
-      content: {
-        banner: 'linear-gradient(135deg, #eab308 0%, #f97316 100%)',
-        title: 'Favorite Pasta Recipes',
-        lastEdited: '27 Oct 2024',
-        tags: ['Cooking', 'Recipes'],
-        body: '1. Carbonara - 400g spaghetti - 200g guanciale - 4 egg yolks - Pecorino Romano - Black pepper\n2. Aglio e Olio - Spaghetti - Garlic - Olive oil - Red pepper flakes - Parsley\n3. Pesto Pasta - Basil - Pine nuts - Parmesan - Garlic - Olive oil'
-      }
-    },
-    {
-      id: 3,
-      title: 'Weekly Workout Plan',
-      tags: ['Dev', 'React'],
-      date: '25 Oct 2024',
-      icon: '💪',
-      color: 'green',
-      content: {
-        banner: 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)',
-        title: 'Weekly Workout Plan',
-        lastEdited: '25 Oct 2024',
-        tags: ['Dev', 'React'],
-        body: 'Monday: Upper Body - Bench Press 4x10 - Pull-ups 3x12 - Shoulder Press 3x10\nWednesday: Lower Body - Squats 4x10 - Deadlifts 3x8 - Lunges 3x12\nFriday: Full Body - Clean and Press - Burpees - Mountain Climbers'
-      }
-    },
-    {
-      id: 4,
-      title: 'Meal Prep Ideas',
-      tags: ['Cooking', 'Health', 'Recipes'],
-      date: '12 Oct 2024',
-      icon: '🍽️',
-      color: 'red',
-      content: {
-        banner: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)',
-        title: 'Meal Prep Ideas',
-        lastEdited: '12 Oct 2024',
-        tags: ['Cooking', 'Health', 'Recipes'],
-        body: 'Ideas for weekly meal prep:\n- Breakfast: Overnight oats, Smoothie bowls\n- Lunch: Chicken quinoa salad, Veggie wraps\n- Dinner: Baked salmon, Stir-fried vegetables\n- Snacks: Nuts, Fruits, Yogurt'
-      }
-    },
-    {
-      id: 5,
-      title: 'Reading List',
-      tags: ['Personal', 'Dev'],
-      date: '05 Oct 2024',
-      icon: '📚',
-      color: 'indigo',
-      content: {
-        banner: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-        title: 'Reading List',
-        lastEdited: '05 Oct 2024',
-        tags: ['Personal', 'Dev'],
-        body: 'Books to read:\n1. Clean Code - Robert C. Martin\n2. The Pragmatic Programmer - Andrew Hunt\n3. Deep Work - Cal Newport\n4. Atomic Habits - James Clear'
-      }
-    },
-    {
-      id: 6,
-      title: 'Fitness Goals 2025',
-      tags: ['Fitness', 'Health', 'Personal'],
-      date: '22 Sep 2024',
-      icon: '🎯',
-      color: 'gray',
-      content: {
-        banner: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-        title: 'Fitness Goals 2025',
-        lastEdited: '22 Sep 2024',
-        tags: ['Fitness', 'Health', 'Personal'],
-        body: 'Goals for next year:\n- Lose 5kg\n- Run a half marathon\n- Workout 4 times a week\n- Maintain healthy diet\n- Track progress monthly'
-      }
+  faTrash = faTrash;
+  faBox= faBox
+  faPenToSquare=faPenToSquare
+  faHouse=faHouse
+  
+  // URL da API mockada
+  private apiUrl = 'http://localhost:3000/notas';
+
+  // Lista de notas carregadas da API
+  notes: INote[] = [];
+
+  // Nota atualmente selecionada
+  notaSelecionada: INote | null = null;
+
+  // Modos de operação
+  modoEdicao: boolean = false;
+  modoCriacao: boolean = false;
+
+  // Controles de formulário
+  tituloControl = new FormControl("");
+  conteudoControl = new FormControl("");
+  tagsControl = new FormControl("");
+  imagemUrlControl = new FormControl("");
+
+  // Filtros
+  tagsFiltradas: string[] = [];
+  termoBusca = new FormControl("");
+
+  // Lista de todas as tags disponíveis
+  todasTags: string[] = [];
+
+  // Modo de visualização
+  viewMode: 'list' | 'archived' = 'list';
+
+  // Dark mode
+  darkMode: boolean = false;
+
+  // ID do usuário logado
+  usuarioLogadoId: number = 1;
+
+  constructor(
+    private http: HttpClient,
+    private cd: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.getNotes();
+    
+    // Carrega preferência de dark mode
+    let darkModeLocalStorage = localStorage.getItem("darkMode");
+    if (darkModeLocalStorage == "true") {
+      this.darkMode = true;
+      document.body.classList.toggle("dark-mode", this.darkMode);
     }
-  ];
 
-  // UI / edição
-  selectedNote: number | null = this.notes.length ? this.notes[0].id : null;
-  darkMode = false;
-  editMode = true;
+    console.log("🚀 Componente All Notes inicializado!");
+    console.log("📡 API URL:", this.apiUrl);
+  }
 
-  // edição temporária
-  editingTitle = '';
-  editingBody = '';
-  editingTags: string[] = [];
+  // Método auxiliar para obter descrição (evita erro com caracteres especiais)
+  getDescricao(): string {
+    return this.notaSelecionada?.descricao || '';
+  }
 
-  // busca / tags disponíveis
-  searchQuery = '';
-  availableTags: string[] = ['Dev', 'React', 'Travel', 'Personal', 'Cooking', 'Health', 'Fitness', 'Recipes'];
-
-  constructor(private router: Router) {
-    // tenta carregar preferência de tema
+  // Busca as notas da API
+  async getNotes() {
     try {
-      const stored = localStorage.getItem('darkMode');
-      if (stored !== null) this.darkMode = JSON.parse(stored);
-    } catch { }
-    // inicializa editor com a nota selecionada
-    if (this.selectedNote !== null) {
-      const n = this.currentNote;
-      if (n) {
-        this.editingTitle = n.content.title;
-        this.editingBody = n.content.body;
-        this.editingTags = [...n.content.tags];
-      }
+      console.log("📥 Buscando notas da API...");
+      
+      const response = await firstValueFrom(
+        this.http.get<INote[]>(this.apiUrl)
+      );
+
+      console.log("✅ Notas recebidas:", response);
+
+      // Filtra apenas as notas do usuário logado
+      this.notes = response.filter(note => note.usuarioId === this.usuarioLogadoId);
+      
+      console.log("📝 Notas filtradas do usuário:", this.notes);
+      
+      this.extrairTodasTags();
+      this.cd.detectChanges();
+    } catch (error) {
+      console.error("❌ Erro ao buscar notas:", error);
+      alert("Não foi possível carregar as notas. Verifique se a API está rodando em http://localhost:3000");
     }
   }
 
-  // getter que o template usa para mostrar a nota atual
-  get currentNote(): Note | undefined {
-    return this.notes.find(n => n.id === this.selectedNote!);
+  // Extrai todas as tags únicas das notas
+  extrairTodasTags() {
+    const tagsSet = new Set<string>();
+    this.notes.forEach(note => {
+      note.tags.forEach(tag => tagsSet.add(tag));
+    });
+    this.todasTags = Array.from(tagsSet).sort();
+    console.log("🏷️ Tags disponíveis:", this.todasTags);
   }
 
-  // notas filtradas pela searchQuery (usado no *ngFor)
-  get filteredNotes(): Note[] {
-    const q = this.searchQuery?.trim().toLowerCase();
-    if (!q) return this.notes;
-    return this.notes.filter(n =>
-      n.title.toLowerCase().includes(q) ||
-      n.content.body.toLowerCase().includes(q) ||
-      n.tags.some(t => t.toLowerCase().includes(q)) ||
-      n.content.tags.some(t => t.toLowerCase().includes(q))
-    );
+  // Quando o usuário clica em uma nota
+  onNoteClick(nota: INote) {
+    console.log("👆 Nota clicada:", nota);
+    
+    this.notaSelecionada = nota;
+    this.modoEdicao = false;
+    this.modoCriacao = false;
+    
+    // Preenche os campos com os dados da nota
+    this.tituloControl.setValue(nota.titulo);
+    this.conteudoControl.setValue(nota.descricao);
+    this.tagsControl.setValue(nota.tags.join(", "));
+    this.imagemUrlControl.setValue(nota.imagemUrl || "");
+    
+    this.cd.detectChanges();
   }
 
-  // Ações
-  selectNote(id: number) {
-    this.selectedNote = id;
-    const note = this.currentNote;
-    this.editMode = false;
-    if (note) {
-      this.editingTitle = note.content.title;
-      this.editingBody = note.content.body;
-      this.editingTags = [...note.content.tags];
+  // Inicia modo de criação de nova nota
+  criarNovaNota() {
+    console.log("➕ Iniciando criação de nova nota...");
+    
+    this.modoCriacao = true;
+    this.modoEdicao = false;
+    this.notaSelecionada = null;
+    
+    // Limpa os campos
+    this.tituloControl.setValue("");
+    this.conteudoControl.setValue("");
+    this.tagsControl.setValue("");
+    this.imagemUrlControl.setValue("");
+  }
+
+  // Cancela edição ou criação
+  cancelar() {
+    console.log("❌ Cancelando operação...");
+    
+    this.modoCriacao = false;
+    this.modoEdicao = false;
+    
+    if (this.notaSelecionada) {
+      this.onNoteClick(this.notaSelecionada);
+    }
+  }
+
+  // Salva nota (cria nova ou atualiza existente)
+  async salvarNota() {
+    const titulo = this.tituloControl.value?.trim();
+    const conteudo = this.conteudoControl.value?.trim();
+    const tagsString = this.tagsControl.value?.trim();
+    
+    if (!titulo || !conteudo) {
+      alert("Título e conteúdo são obrigatórios!");
+      return;
+    }
+
+    // Processa as tags
+    const tags = tagsString 
+      ? tagsString.split(",").map(tag => tag.trim()).filter(tag => tag)
+      : [];
+
+    const imagemUrl = this.imagemUrlControl.value?.trim() || "";
+
+    try {
+      if (this.modoCriacao) {
+        // ========== CRIAR NOVA NOTA ==========
+        console.log("💾 Criando nova nota...");
+        
+        const novaNota: INote = {
+          titulo: titulo,
+          descricao: conteudo,
+          tags: tags,
+          imagemUrl: imagemUrl,
+          usuarioId: this.usuarioLogadoId,
+          dataEdicao: new Date().toISOString()
+        };
+
+        console.log("📤 Dados a serem enviados:", novaNota);
+
+        // POST - json-server vai gerar o ID automaticamente
+        const notaCriada = await firstValueFrom(
+          this.http.post<INote>(this.apiUrl, novaNota)
+        );
+
+        console.log("✅ Nota criada com sucesso:", notaCriada);
+        alert("Nota criada com sucesso!");
+        
+      } else if (this.notaSelecionada) {
+        // ========== ATUALIZAR NOTA EXISTENTE ==========
+        console.log("✏️ Atualizando nota ID:", this.notaSelecionada.id);
+        
+        const notaAtualizada: INote = {
+          id: this.notaSelecionada.id,
+          titulo: titulo,
+          descricao: conteudo,
+          tags: tags,
+          imagemUrl: imagemUrl,
+          usuarioId: this.usuarioLogadoId,
+          dataEdicao: new Date().toISOString()
+        };
+
+        console.log("📤 Dados da atualização:", notaAtualizada);
+
+        // PUT - atualiza a nota completa
+        await firstValueFrom(
+          this.http.put<INote>(
+            `${this.apiUrl}/${this.notaSelecionada.id}`,
+            notaAtualizada
+          )
+        );
+
+        console.log("✅ Nota atualizada com sucesso!");
+        alert("Nota atualizada com sucesso!");
+      }
+
+      // Recarrega as notas
+      await this.getNotes();
+      this.modoCriacao = false;
+      this.modoEdicao = false;
+      
+    } catch (error) {
+      console.error("❌ Erro ao salvar nota:", error);
+      alert("Não foi possível salvar a nota. Verifique o console para mais detalhes.");
+    }
+  }
+
+  // Deleta a nota selecionada
+  async deletarNota() {
+    if (!this.notaSelecionada || !this.notaSelecionada.id) return;
+
+    const confirmacao = confirm(`Tem certeza que deseja deletar a nota "${this.notaSelecionada.titulo}"?`);
+    if (!confirmacao) return;
+
+    console.log("🗑️ Deletando nota ID:", this.notaSelecionada.id);
+
+    try {
+      // DELETE - remove a nota do json-server
+      await firstValueFrom(
+        this.http.delete(`${this.apiUrl}/${this.notaSelecionada.id}`)
+      );
+
+      console.log("✅ Nota deletada com sucesso!");
+      alert("Nota deletada com sucesso!");
+      
+      this.notaSelecionada = null;
+      await this.getNotes();
+      
+    } catch (error) {
+      console.error("❌ Erro ao deletar nota:", error);
+      alert("Não foi possível deletar a nota.");
+    }
+  }
+
+  // Getter para notas filtradas
+  get notasFiltradas(): INote[] {
+    let notas = this.notes;
+
+    // Filtro de busca
+    const termo = this.termoBusca.value?.toLowerCase();
+    if (termo) {
+      notas = notas.filter(note => 
+        note.titulo.toLowerCase().includes(termo) ||
+        note.descricao.toLowerCase().includes(termo) ||
+        note.tags.some(tag => tag.toLowerCase().includes(termo))
+      );
+    }
+
+    // Filtro de tags
+    if (this.tagsFiltradas.length > 0) {
+      notas = notas.filter(note =>
+        this.tagsFiltradas.every(tag => note.tags.includes(tag))
+      );
+    }
+
+    // Ordena por data de edição (mais recente primeiro)
+    return notas.sort((a, b) => {
+      const dataA = a.dataEdicao ? new Date(a.dataEdicao).getTime() : 0;
+      const dataB = b.dataEdicao ? new Date(b.dataEdicao).getTime() : 0;
+      return dataB - dataA;
+    });
+  }
+
+  // Toggle filtro de tag
+  toggleTagFilter(tag: string) {
+    const index = this.tagsFiltradas.indexOf(tag);
+    if (index > -1) {
+      this.tagsFiltradas.splice(index, 1);
+      console.log("🏷️ Tag removida do filtro:", tag);
     } else {
-      this.editingTitle = '';
-      this.editingBody = '';
-      this.editingTags = [];
+      this.tagsFiltradas.push(tag);
+      console.log("🏷️ Tag adicionada ao filtro:", tag);
     }
   }
 
-  createNewNote() {
-    const newId = this.notes.length ? Math.max(...this.notes.map(n => n.id)) + 1 : 0;
-    const newNote: Note = {
-      id: newId,
-      title: 'Untitled Note',
-      tags: [],
-      date: this.getCurrentDate(),
-      icon: '📝',
-      color: 'gray',
-      content: {
-        banner: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-        title: 'Enter a title...',
-        lastEdited: this.getCurrentDate(),
-        tags: [],
-        body: ''
-      }
-    };
-    this.notes.unshift(newNote);
-    this.selectNote(newId);
-    this.enableEditMode();
+  // Formata data para exibição
+  formatarData(data?: string): string {
+    if (!data) return 'Sem data';
+    
+    const date = new Date(data);
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   }
 
-  enableEditMode() {
-    const note = this.currentNote;
-    if (!note) return;
-    this.editMode = true;
-    this.editingTitle = note.content.title;
-    this.editingBody = note.content.body;
-    this.editingTags = [...note.content.tags];
-  }
-
-  cancelEdit() {
-    const note = this.currentNote;
-    if (note) {
-      this.editingTitle = note.content.title;
-      this.editingBody = note.content.body;
-      this.editingTags = [...note.content.tags];
-    }
-    this.editMode = false;
-  }
-
-  saveNote() {
-    const note = this.currentNote;
-    if (!note) return;
-    note.content.title = this.editingTitle || 'Untitled Note';
-    note.content.body = this.editingBody;
-    note.content.tags = [...this.editingTags];
-    note.content.lastEdited = this.getCurrentDate();
-    note.title = note.content.title;
-    note.tags = [...this.editingTags];
-    note.date = this.getCurrentDate();
-    this.editMode = false;
-  }
-
-  addTag(tag: string) {
-    const t = (tag || '').trim();
-    if (!t) return;
-    if (!this.editingTags.includes(t)) this.editingTags.push(t);
-  }
-
-  removeTag(tag: string) {
-    this.editingTags = this.editingTags.filter(t => t !== tag);
-  }
-
-  deleteNote(noteId: number) {
-    this.notes = this.notes.filter(n => n.id !== noteId);
-    if (this.selectedNote === noteId) {
-      if (this.notes.length) {
-        this.selectNote(this.notes[0].id);
-      } else {
-        this.selectedNote = null;
-        this.editMode = false;
-      }
-    }
-  }
-
-  logout() {
-    localStorage.removeItem('meuTokem');
-    localStorage.removeItem('meuId');
-    this.router.navigate(['/login']);
-  }
-
-  toggleDarkMode() {
+  // Toggle dark mode
+  ligarDesligarDarkMode() {
     this.darkMode = !this.darkMode;
-    localStorage.setItem('darkMode', JSON.stringify(this.darkMode));
+    document.body.classList.toggle("dark-mode", this.darkMode);
+    localStorage.setItem("darkMode", this.darkMode.toString());
+    console.log("🌓 Dark mode:", this.darkMode ? "ativado" : "desativado");
   }
 
-  getCurrentDate(): string {
-    const date = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    };
-    return date.toLocaleDateString('en-GB', options);
+  // Logout
+  logout() {
+    console.log("👋 Fazendo logout...");
+    localStorage.removeItem("meuToken");
+    localStorage.removeItem("meuId");
+    window.location.href = "login";
   }
 }

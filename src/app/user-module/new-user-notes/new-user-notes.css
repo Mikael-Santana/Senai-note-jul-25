@@ -431,3 +431,6 @@ a, button, input {
     font-size: 13px;
   }
 }
+  .note-detail-banner{  
+    background-size:cover ;
+  }

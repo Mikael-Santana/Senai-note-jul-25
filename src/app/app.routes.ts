@@ -1,47 +1,24 @@
 import { Routes } from '@angular/router';
-import { TelaLoginNotes } from './user-module/tela-login-notes/tela-login-notes';
-import { NewUserNotes } from './user-module/new-user-notes/new-user-notes';
-import { AllNotes } from './user-module/all-notes/all-notes';
 import { authGuard } from '../../auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', loadComponent: () => TelaLoginNotes },
-  { path: 'chat', loadComponent: () => AllNotes, canActivate: [authGuard] },
-  { path: 'cadastro', loadComponent: () => NewUserNotes },
+  
+  { 
+    path: 'login', 
+    loadComponent: () => import('./user-module/tela-login-notes/tela-login-notes').then(m => m.TelaLoginNotes)
+  },
+  
+  { 
+    path: 'chat', 
+    loadComponent: () => import('./user-module/all-notes/all-notes').then(m => m.AllNotes), 
+    canActivate: [authGuard]
+  },
+  
+  { 
+    path: 'cadastro', 
+    loadComponent: () => import('./user-module/new-user-notes/new-user-notes').then(m => m.NewUserNotes)
+  },
+  
   { path: '**', redirectTo: 'login' }
 ];
-
-
-
-// import { Routes } from '@angular/router';
-// import { TelaLoginNotes } from './user-module/tela-login-notes/tela-login-notes';
-// import { NewUserNotes } from './user-module/new-user-notes/new-user-notes';
-// import { AllNotes } from './user-module/all-notes/all-notes';
-// import { authGuard } from '../../auth.guard';
-
-
-
-// export const routes: Routes = [
-//   {
-//     path: '',
-//     redirectTo: 'login',
-//     pathMatch: 'full'
-//   },
-//   {
-//     path: 'login',
-//     loadComponent: () => TelaLoginNotes
-//   },
-//   {
-//     path: 'chat',
-//     loadComponent: () => AllNotes,   // 🚀 Chat = AllNotes
-//     canActivate: [authGuard]},
-//   {
-//     path: 'cadastro',
-//     loadComponent: () => NewUserNotes
-//   },
-//   {
-//     path: '**',
-//     redirectTo: 'login'
-//   }
-// ];
