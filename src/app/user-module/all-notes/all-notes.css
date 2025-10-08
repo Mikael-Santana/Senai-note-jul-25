@@ -573,236 +573,6 @@
   border-color: #d93025;
 }
 
-/* ========== DARK MODE ========== */
-body.dark-mode .notes-container {
-  background-color: #202124;
-  color: #e8eaed;
-}
-
-body.dark-mode .sidebar {
-  background-color: #292a2d;
-  border-right-color: #3c4043;
-}
-
-body.dark-mode .app-title {
-  color: #e8eaed;
-}
-
-body.dark-mode .sidebar-header {
-  border-bottom-color: #3c4043;
-}
-
-body.dark-mode .sidebar-nav {
-  border-bottom-color: #3c4043;
-}
-
-body.dark-mode .nav-item {
-  color: #9aa0a6;
-}
-
-body.dark-mode .nav-item:hover {
-  background-color: #3c4043;
-}
-
-body.dark-mode .nav-item.active {
-  background-color: #1a2d42;
-  color: #8ab4f8;
-}
-
-body.dark-mode .tag-item {
-  color: #9aa0a6;
-}
-
-body.dark-mode .tag-item:hover {
-  background-color: #3c4043;
-}
-
-body.dark-mode .tag-item.active {
-  background-color: #3d3929;
-  color: #fdd663;
-}
-
-body.dark-mode .main-content {
-  background-color: #202124;
-  border-right-color: #3c4043;
-}
-
-body.dark-mode .section-title {
-  color: #e8eaed;
-}
-
-body.dark-mode .search-input {
-  background-color: #292a2d;
-  border-color: #5f6368;
-  color: #e8eaed;
-}
-
-body.dark-mode .search-input:focus {
-  border-color: #8ab4f8;
-}
-
-body.dark-mode .search-input::placeholder {
-  color: #9aa0a6;
-}
-
-body.dark-mode .icon-button:hover {
-  background-color: #3c4043;
-}
-
-body.dark-mode .create-note-button {
-  background-color: #8ab4f8;
-  color: #202124;
-}
-
-body.dark-mode .create-note-button:hover {
-  background-color: #aecbfa;
-}
-
-body.dark-mode .note-card {
-  background-color: #292a2d;
-  border-color: #3c4043;
-}
-
-body.dark-mode .note-card:hover {
-  border-color: #8ab4f8;
-}
-
-body.dark-mode .note-card.selected {
-  border-color: #8ab4f8;
-  background-color: #1a2d42;
-}
-
-body.dark-mode .note-card-banner {
-  background-color: #3c4043;
-}
-
-body.dark-mode .note-card-icon {
-  background-color: #1a2d42;
-}
-
-body.dark-mode .note-title {
-  color: #e8eaed;
-}
-
-body.dark-mode .note-tag {
-  background-color: #3c4043;
-  color: #9aa0a6;
-}
-
-body.dark-mode .note-date {
-  color: #9aa0a6;
-}
-
-body.dark-mode .empty-state {
-  background-color: #292a2d;
-  color: #9aa0a6;
-}
-
-body.dark-mode .note-details {
-  background-color: #202124;
-}
-
-body.dark-mode .note-detail-actions {
-  border-bottom-color: #3c4043;
-}
-
-body.dark-mode .action-icon-btn {
-  background-color: #292a2d;
-  border-color: #5f6368;
-  color: #e8eaed;
-}
-
-body.dark-mode .action-icon-btn:hover {
-  background-color: #3c4043;
-}
-
-body.dark-mode .note-detail-banner {
-  background-color: #3c4043;
-}
-
-body.dark-mode .note-detail-icon {
-  background-color: #1a2d42;
-}
-
-body.dark-mode .note-detail-title {
-  color: #e8eaed;
-}
-
-body.dark-mode .note-metadata {
-  background-color: #292a2d;
-}
-
-body.dark-mode .metadata-label {
-  color: #9aa0a6;
-}
-
-body.dark-mode .metadata-value {
-  color: #e8eaed;
-}
-
-body.dark-mode .metadata-tag {
-  background-color: #3c4043;
-  border-color: #5f6368;
-  color: #9aa0a6;
-}
-
-body.dark-mode .content-title {
-  color: #9aa0a6;
-}
-
-body.dark-mode .note-content-text {
-  color: #e8eaed;
-}
-
-body.dark-mode .form-section-title {
-  color: #e8eaed;
-}
-
-body.dark-mode .form-label {
-  color: #9aa0a6;
-}
-
-body.dark-mode .form-input,
-body.dark-mode .form-textarea {
-  background-color: #292a2d;
-  border-color: #5f6368;
-  color: #e8eaed;
-}
-
-body.dark-mode .form-input:focus,
-body.dark-mode .form-textarea:focus {
-  border-color: #8ab4f8;
-}
-
-body.dark-mode .btn-primary {
-  background-color: #8ab4f8;
-  color: #202124;
-}
-
-body.dark-mode .btn-primary:hover {
-  background-color: #aecbfa;
-}
-
-body.dark-mode .btn-secondary {
-  background-color: transparent;
-  color: #9aa0a6;
-  border-color: #5f6368;
-}
-
-body.dark-mode .btn-secondary:hover {
-  background-color: #3c4043;
-}
-
-body.dark-mode .btn-danger {
-  color: #f28b82;
-  border-color: #5f6368;
-}
-
-body.dark-mode .btn-danger:hover {
-  background-color: #3c2929;
-  border-color: #f28b82;
-}
-
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 1200px) {
   .notes-container {
@@ -837,4 +607,85 @@ body.dark-mode .btn-danger:hover {
   border-radius: 8px; /* opcional, cantos arredondados */
   display: block;
 }
+::ng-deep body.dark-mode button,
+::ng-deep body.dark-mode .note-card,
+::ng-deep body.dark-mode .action-icon-btn,
+::ng-deep body.dark-mode .create-note-button {
+  background-color: #2b2d38 !important;
+  border: 1px solid #3a3c47 !important;
+  color: #e0e0e0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
 
+::ng-deep body.dark-mode button:hover,
+::ng-deep body.dark-mode .note-card:hover,
+::ng-deep body.dark-mode .action-icon-btn:hover {
+  background-color: #323544 !important;
+  border-color: #4a4d5a !important;
+}
+
+::ng-deep body.dark-mode button:active,
+::ng-deep body.dark-mode .note-card:active,
+::ng-deep body.dark-mode .action-icon-btn:active {
+  background-color: #1f2029 !important; /* sem flash branco */
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
+  outline: none !important;
+}
+
+/* Cores base de fundo e bordas */
+::ng-deep body.dark-mode .sidebar,
+::ng-deep body.dark-mode .main-content,
+::ng-deep body.dark-mode .search-input,
+::ng-deep body.dark-mode .note-details,
+::ng-deep body.dark-mode .note-metadata,
+::ng-deep body.dark-mode .metadata-tag {
+  background-color: #232530 !important;
+  border-color: #3a3c47 !important;
+}
+
+/* Cards e blocos com leve destaque */
+::ng-deep body.dark-mode .note-card,
+::ng-deep body.dark-mode .note-metadata,
+::ng-deep body.dark-mode .note-detail-banner {
+  background-color: #2b2d38 !important;
+  border: 1px solid #3a3c47 !important;
+}
+
+/* Títulos e textos */
+::ng-deep body.dark-mode .app-title,
+::ng-deep body.dark-mode .nav-item,
+::ng-deep body.dark-mode .tags-title,
+::ng-deep body.dark-mode .tag-item,
+::ng-deep body.dark-mode .section-title,
+::ng-deep body.dark-mode .note-title,
+::ng-deep body.dark-mode .note-detail-title,
+::ng-deep body.dark-mode .content-title,
+::ng-deep body.dark-mode .note-content-text,
+::ng-deep body.dark-mode .metadata-label,
+::ng-deep body.dark-mode .metadata-value {
+  color: #f2f2f2 !important;
+}
+
+/* Ícones e detalhes */
+::ng-deep body.dark-mode .nav-icon,
+::ng-deep body.dark-mode .metadata-icon {
+  color: #c0c0c0 !important;
+}
+
+/* Input de busca no dark mode */
+::ng-deep body.dark-mode .search-input {
+  background-color: #2b2d38 !important;
+  color: #f2f2f2 !important;
+  border: 1px solid #3a3c47 !important;
+}
+
+::ng-deep body.dark-mode .search-input::placeholder {
+  color: #9a9aa0 !important;
+}
+
+::ng-deep body.dark-mode .search-input:focus {
+  border-color: #5a84f2 ;
+  box-shadow: 0 0 0 2px rgba(90, 132, 242, 0.2);
+}

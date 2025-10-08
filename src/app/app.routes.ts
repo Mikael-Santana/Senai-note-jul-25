@@ -10,13 +10,13 @@ export const routes: Routes = [
   },
   
   { 
-    path: 'chat', 
+    path: 'all-notes', 
     loadComponent: () => import('./user-module/all-notes/all-notes').then(m => m.AllNotes), 
     canActivate: [authGuard]
   },
   
   { 
-    path: 'cadastro', 
+    path: 'new-user-notes', 
     loadComponent: () => import('./user-module/new-user-notes/new-user-notes').then(m => m.NewUserNotes)
   },
   
