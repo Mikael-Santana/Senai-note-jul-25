@@ -57,11 +57,11 @@
           [formControl]="termoBusca">
         
         <button class="icon-button" (click)="ligarDesligarDarkMode()" title="Toggle Dark Mode">
-          {{ darkMode ? '☀️' : '🌙' }}
+          <fa-icon [icon]="darkMode ? faSun : faMoon"></fa-icon>
         </button>
         
         <button class="icon-button" (click)="logout()" title="Logout">
-          👤
+           <fa-icon [icon]="faUser"></fa-icon>
         </button>
       </div>
     </div>

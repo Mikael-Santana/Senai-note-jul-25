@@ -6,7 +6,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faBox, faPenToSquare, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faBox, faPenToSquare, faHouse, faUser, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
 // Interface que define o formato de uma Nota
 interface INote {
@@ -23,7 +23,7 @@ interface INote {
   selector: 'app-all-notes',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
-  templateUrl: './all-notes.html',
+  templateUrl:'./all-notes.html',
   styleUrls: ['./all-notes.css']
 })
 export class AllNotes {
@@ -31,6 +31,9 @@ export class AllNotes {
   faBox= faBox
   faPenToSquare=faPenToSquare
   faHouse=faHouse
+  faUser=faUser
+  faMoon=faMoon
+  faSun=faSun
   
   // URL da API mockada
   private apiUrl = 'http://localhost:3000/notas';
