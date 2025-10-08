@@ -57,11 +57,11 @@
           [formControl]="termoBusca">
         
         <button class="icon-button" (click)="ligarDesligarDarkMode()" title="Toggle Dark Mode">
-          {{ darkMode ? '☀️' : '🌙' }}
+           <fa-icon [icon]="darkMode ? faSun : faMoon"></fa-icon>
         </button>
         
         <button class="icon-button" (click)="logout()" title="Logout">
-          👤
+          <fa-icon [icon]="faUser"></fa-icon>
         </button>
       </div>
     </div>
@@ -157,6 +157,7 @@
       </div>
     </ng-container>
 
+    <!-- Modo Edição/Criação -->
     <ng-container *ngIf="modoEdicao || modoCriacao">
       <div class="note-detail-actions">
         <button class="action-icon-btn" (click)="cancelar()" title="Cancel">✖️</button>
@@ -183,8 +184,49 @@
             [formControl]="tagsControl">
         </div>
 
+        <!-- 📸 SEÇÃO DO IMAGE CROPPER - ADICIONADA AQUI -->
         <div class="form-group">
-          <label class="form-label">Image URL (optional)</label>
+          <label class="form-label">Image (upload and crop)</label>
+          
+          <!-- Input para selecionar arquivo -->
+          <input 
+            type="file" 
+            accept="image/*"
+            (change)="fileChangeEvent($event)"
+            class="form-input">
+          
+          <!-- Preview da imagem cortada -->
+          <div *ngIf="croppedImage && !mostrarCropper" class="image-preview">
+            <img [src]="croppedImage" alt="Preview" class="cropped-preview">
+          </div>
+
+          <!-- Modal do Image Cropper -->
+          <div *ngIf="mostrarCropper" class="cropper-modal">
+            <div class="cropper-container">
+              <h3>Crop your image</h3>
+              
+              <image-cropper
+                [imageChangedEvent]="imageChangedEvent"
+                [maintainAspectRatio]="true"
+                [aspectRatio]="16 / 9"
+                format="png"
+                (imageCropped)="imageCropped($event)">
+              </image-cropper>
+
+              <div class="cropper-actions">
+                <button type="button" class="btn-primary" (click)="confirmarRecorte()">
+                  ✓ Confirm
+                </button>
+                <button type="button" class="btn-secondary" (click)="cancelarRecorte()">
+                  ✖ Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Image URL (optional - or use upload above)</label>
           <input 
             type="text" 
             class="form-input"

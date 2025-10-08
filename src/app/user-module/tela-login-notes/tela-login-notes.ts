@@ -83,7 +83,7 @@ export class TelaLoginNotes implements OnInit {
         if (meuId != null) localStorage.setItem('meuId', String(meuId));
 
         this.sucessoErrorMessage = 'Login realizado com sucesso!';
-        this.router.navigate(['/chat']); // ✅ redirecionamento correto
+        this.router.navigate(['/notes']); // ✅ redirecionamento correto
       } else {
         this.incorretoErrorMessage = 'E-mail ou senha incorretos.';
       }

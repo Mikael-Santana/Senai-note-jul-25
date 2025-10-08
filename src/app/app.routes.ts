@@ -10,7 +10,7 @@ export const routes: Routes = [
   },
   
   { 
-    path: 'chat', 
+    path: 'notes', 
     loadComponent: () => import('./user-module/all-notes/all-notes').then(m => m.AllNotes), 
     canActivate: [authGuard]
   },

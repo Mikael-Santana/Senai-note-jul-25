@@ -5,8 +5,9 @@ import { firstValueFrom } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faBox, faPenToSquare, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faBox, faPenToSquare, faHouse, faMoon, faSun, faUser } from '@fortawesome/free-solid-svg-icons';
+import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
+import { DomSanitizer } from '@angular/platform-browser';
 
 // Interface que define o formato de uma Nota
 interface INote {
@@ -22,26 +23,29 @@ interface INote {
 @Component({
   selector: 'app-all-notes',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, ImageCropperComponent],
   templateUrl: './all-notes.html',
   styleUrls: ['./all-notes.css']
 })
 export class AllNotes {
   faTrash = faTrash;
-  faBox= faBox
-  faPenToSquare=faPenToSquare
-  faHouse=faHouse
-  
-  // URL da API mockada
+  faBox = faBox;
+  faPenToSquare = faPenToSquare;
+  faHouse = faHouse;
+  faMoon = faMoon;
+  faSun = faSun;
+  faUser = faUser;
+
+  // URL da API
   private apiUrl = 'http://localhost:3000/notas';
 
-  // Lista de notas carregadas da API
+  // Lista de notas carregadas
   notes: INote[] = [];
 
   // Nota atualmente selecionada
   notaSelecionada: INote | null = null;
 
-  // Modos de operação
+  // Modos
   modoEdicao: boolean = false;
   modoCriacao: boolean = false;
 
@@ -51,11 +55,16 @@ export class AllNotes {
   tagsControl = new FormControl("");
   imagemUrlControl = new FormControl("");
 
+  // Controles do cropper
+  imageChangedEvent: any = '';
+  croppedImage: string = '';
+  mostrarCropper: boolean = false; // controla se o cropper aparece
+
   // Filtros
   tagsFiltradas: string[] = [];
   termoBusca = new FormControl("");
 
-  // Lista de todas as tags disponíveis
+  // Lista de todas as tags
   todasTags: string[] = [];
 
   // Modo de visualização
@@ -67,15 +76,12 @@ export class AllNotes {
   // ID do usuário logado
   usuarioLogadoId: number = 1;
 
-  constructor(
-    private http: HttpClient,
-    private cd: ChangeDetectorRef
-  ) {}
+  constructor(private http: HttpClient, private cd: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.getNotes();
-    
-    // Carrega preferência de dark mode
+
+    // Carrega preferência do dark mode
     let darkModeLocalStorage = localStorage.getItem("darkMode");
     if (darkModeLocalStorage == "true") {
       this.darkMode = true;
@@ -83,105 +89,110 @@ export class AllNotes {
     }
 
     console.log("🚀 Componente All Notes inicializado!");
-    console.log("📡 API URL:", this.apiUrl);
   }
 
-  // Método auxiliar para obter descrição (evita erro com caracteres especiais)
+  // ===============================================
+  // 📝 MÉTODO AUXILIAR PARA O HTML
+  // ===============================================
   getDescricao(): string {
     return this.notaSelecionada?.descricao || '';
   }
 
-  // Busca as notas da API
+  // ===============================================
+  // 📸 FUNÇÕES DO IMAGE CROPPER
+  // ===============================================
+
+  // Evento disparado quando o usuário escolhe uma imagem
+  fileChangeEvent(event: any): void {
+    this.imageChangedEvent = event;
+    this.mostrarCropper = true;
+    console.log("🖼️ Imagem selecionada para recorte.");
+  }
+
+  // Quando o corte é feito
+  imageCropped(event: ImageCroppedEvent) {
+    this.croppedImage = event.base64 || '';
+    this.imagemUrlControl.setValue(this.croppedImage);
+    console.log("✂️ Imagem cortada gerada!");
+  }
+
+  // Quando o usuário confirma o recorte
+  confirmarRecorte() {
+    this.mostrarCropper = false;
+    console.log("✅ Recorte confirmado!");
+  }
+
+  cancelarRecorte() {
+    this.mostrarCropper = false;
+    this.imageChangedEvent = '';
+    this.croppedImage = '';
+    console.log("❌ Recorte cancelado.");
+  }
+
+  // ===============================================
+  // 🔹 CRUD DE NOTAS
+  // ===============================================
+
   async getNotes() {
     try {
-      console.log("📥 Buscando notas da API...");
-      
-      const response = await firstValueFrom(
-        this.http.get<INote[]>(this.apiUrl)
-      );
-
-      console.log("✅ Notas recebidas:", response);
-
-      // Filtra apenas as notas do usuário logado
+      const response = await firstValueFrom(this.http.get<INote[]>(this.apiUrl));
       this.notes = response.filter(note => note.usuarioId === this.usuarioLogadoId);
-      
-      console.log("📝 Notas filtradas do usuário:", this.notes);
-      
       this.extrairTodasTags();
       this.cd.detectChanges();
     } catch (error) {
       console.error("❌ Erro ao buscar notas:", error);
-      alert("Não foi possível carregar as notas. Verifique se a API está rodando em http://localhost:3000");
+      alert("Erro ao carregar notas. Verifique se a API está ativa.");
     }
   }
 
-  // Extrai todas as tags únicas das notas
   extrairTodasTags() {
     const tagsSet = new Set<string>();
-    this.notes.forEach(note => {
-      note.tags.forEach(tag => tagsSet.add(tag));
-    });
+    this.notes.forEach(note => note.tags.forEach(tag => tagsSet.add(tag)));
     this.todasTags = Array.from(tagsSet).sort();
-    console.log("🏷️ Tags disponíveis:", this.todasTags);
   }
 
-  // Quando o usuário clica em uma nota
   onNoteClick(nota: INote) {
-    console.log("👆 Nota clicada:", nota);
-    
     this.notaSelecionada = nota;
     this.modoEdicao = false;
     this.modoCriacao = false;
-    
-    // Preenche os campos com os dados da nota
+
     this.tituloControl.setValue(nota.titulo);
     this.conteudoControl.setValue(nota.descricao);
     this.tagsControl.setValue(nota.tags.join(", "));
     this.imagemUrlControl.setValue(nota.imagemUrl || "");
-    
-    this.cd.detectChanges();
   }
 
-  // Inicia modo de criação de nova nota
   criarNovaNota() {
-    console.log("➕ Iniciando criação de nova nota...");
-    
     this.modoCriacao = true;
     this.modoEdicao = false;
     this.notaSelecionada = null;
-    
-    // Limpa os campos
     this.tituloControl.setValue("");
     this.conteudoControl.setValue("");
     this.tagsControl.setValue("");
     this.imagemUrlControl.setValue("");
   }
 
-  // Cancela edição ou criação
   cancelar() {
-    console.log("❌ Cancelando operação...");
-    
     this.modoCriacao = false;
     this.modoEdicao = false;
-    
+    this.mostrarCropper = false;
+
     if (this.notaSelecionada) {
       this.onNoteClick(this.notaSelecionada);
     }
   }
 
-  // Salva nota (cria nova ou atualiza existente)
   async salvarNota() {
     const titulo = this.tituloControl.value?.trim();
     const conteudo = this.conteudoControl.value?.trim();
     const tagsString = this.tagsControl.value?.trim();
-    
+
     if (!titulo || !conteudo) {
       alert("Título e conteúdo são obrigatórios!");
       return;
     }
 
-    // Processa as tags
-    const tags = tagsString 
+    const tags = tagsString
       ? tagsString.split(",").map(tag => tag.trim()).filter(tag => tag)
       : [];
 
@@ -189,116 +200,75 @@ export class AllNotes {
 
     try {
       if (this.modoCriacao) {
-        // ========== CRIAR NOVA NOTA ==========
-        console.log("💾 Criando nova nota...");
-        
         const novaNota: INote = {
-          titulo: titulo,
+          titulo,
           descricao: conteudo,
-          tags: tags,
-          imagemUrl: imagemUrl,
+          tags,
+          imagemUrl,
           usuarioId: this.usuarioLogadoId,
           dataEdicao: new Date().toISOString()
         };
 
-        console.log("📤 Dados a serem enviados:", novaNota);
-
-        // POST - json-server vai gerar o ID automaticamente
-        const notaCriada = await firstValueFrom(
-          this.http.post<INote>(this.apiUrl, novaNota)
-        );
-
-        console.log("✅ Nota criada com sucesso:", notaCriada);
+        await firstValueFrom(this.http.post<INote>(this.apiUrl, novaNota));
         alert("Nota criada com sucesso!");
-        
       } else if (this.notaSelecionada) {
-        // ========== ATUALIZAR NOTA EXISTENTE ==========
-        console.log("✏️ Atualizando nota ID:", this.notaSelecionada.id);
-        
         const notaAtualizada: INote = {
           id: this.notaSelecionada.id,
-          titulo: titulo,
+          titulo,
           descricao: conteudo,
-          tags: tags,
-          imagemUrl: imagemUrl,
+          tags,
+          imagemUrl,
           usuarioId: this.usuarioLogadoId,
           dataEdicao: new Date().toISOString()
         };
 
-        console.log("📤 Dados da atualização:", notaAtualizada);
-
-        // PUT - atualiza a nota completa
-        await firstValueFrom(
-          this.http.put<INote>(
-            `${this.apiUrl}/${this.notaSelecionada.id}`,
-            notaAtualizada
-          )
-        );
-
-        console.log("✅ Nota atualizada com sucesso!");
+        await firstValueFrom(this.http.put<INote>(`${this.apiUrl}/${this.notaSelecionada.id}`, notaAtualizada));
         alert("Nota atualizada com sucesso!");
       }
 
-      // Recarrega as notas
       await this.getNotes();
       this.modoCriacao = false;
       this.modoEdicao = false;
-      
     } catch (error) {
       console.error("❌ Erro ao salvar nota:", error);
-      alert("Não foi possível salvar a nota. Verifique o console para mais detalhes.");
+      alert("Erro ao salvar nota. Verifique o console.");
     }
   }
 
-  // Deleta a nota selecionada
   async deletarNota() {
     if (!this.notaSelecionada || !this.notaSelecionada.id) return;
 
-    const confirmacao = confirm(`Tem certeza que deseja deletar a nota "${this.notaSelecionada.titulo}"?`);
+    const confirmacao = confirm(`Tem certeza que deseja deletar "${this.notaSelecionada.titulo}"?`);
     if (!confirmacao) return;
 
-    console.log("🗑️ Deletando nota ID:", this.notaSelecionada.id);
-
     try {
-      // DELETE - remove a nota do json-server
-      await firstValueFrom(
-        this.http.delete(`${this.apiUrl}/${this.notaSelecionada.id}`)
-      );
-
-      console.log("✅ Nota deletada com sucesso!");
-      alert("Nota deletada com sucesso!");
-      
+      await firstValueFrom(this.http.delete(`${this.apiUrl}/${this.notaSelecionada.id}`));
+      alert("Nota deletada!");
       this.notaSelecionada = null;
       await this.getNotes();
-      
     } catch (error) {
-      console.error("❌ Erro ao deletar nota:", error);
-      alert("Não foi possível deletar a nota.");
+      alert("Erro ao deletar nota.");
     }
   }
 
-  // Getter para notas filtradas
   get notasFiltradas(): INote[] {
     let notas = this.notes;
-
-    // Filtro de busca
     const termo = this.termoBusca.value?.toLowerCase();
+
     if (termo) {
-      notas = notas.filter(note => 
+      notas = notas.filter(note =>
         note.titulo.toLowerCase().includes(termo) ||
         note.descricao.toLowerCase().includes(termo) ||
         note.tags.some(tag => tag.toLowerCase().includes(termo))
       );
     }
 
-    // Filtro de tags
     if (this.tagsFiltradas.length > 0) {
       notas = notas.filter(note =>
         this.tagsFiltradas.every(tag => note.tags.includes(tag))
       );
     }
 
-    // Ordena por data de edição (mais recente primeiro)
     return notas.sort((a, b) => {
       const dataA = a.dataEdicao ? new Date(a.dataEdicao).getTime() : 0;
       const dataB = b.dataEdicao ? new Date(b.dataEdicao).getTime() : 0;
@@ -306,41 +276,25 @@ export class AllNotes {
     });
   }
 
-  // Toggle filtro de tag
   toggleTagFilter(tag: string) {
     const index = this.tagsFiltradas.indexOf(tag);
-    if (index > -1) {
-      this.tagsFiltradas.splice(index, 1);
-      console.log("🏷️ Tag removida do filtro:", tag);
-    } else {
-      this.tagsFiltradas.push(tag);
-      console.log("🏷️ Tag adicionada ao filtro:", tag);
-    }
+    if (index > -1) this.tagsFiltradas.splice(index, 1);
+    else this.tagsFiltradas.push(tag);
   }
 
-  // Formata data para exibição
   formatarData(data?: string): string {
     if (!data) return 'Sem data';
-    
     const date = new Date(data);
-    return date.toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
-    });
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  // Toggle dark mode
   ligarDesligarDarkMode() {
     this.darkMode = !this.darkMode;
     document.body.classList.toggle("dark-mode", this.darkMode);
     localStorage.setItem("darkMode", this.darkMode.toString());
-    console.log("🌓 Dark mode:", this.darkMode ? "ativado" : "desativado");
   }
 
-  // Logout
   logout() {
-    console.log("👋 Fazendo logout...");
     localStorage.removeItem("meuToken");
     localStorage.removeItem("meuId");
     window.location.href = "login";
