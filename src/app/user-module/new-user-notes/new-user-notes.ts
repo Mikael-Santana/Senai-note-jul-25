@@ -140,16 +140,16 @@ export class NewUserNotes {
     try {
       // Prepara o corpo da requisição
       const requestBody = {
-        name: nome,
+        
         email: email.trim(),
-        password: password
+        senha: password
       };
 
       console.log('Enviando para API:', requestBody);
       console.log('Body stringificado:', JSON.stringify(requestBody));
 
       // Envia os dados para a API
-      let response = await fetch("https://senai-gpt-api.azurewebsites.net/users", {
+      let response = await fetch("http://senainotes-g3edp.us-east-1.elasticbeanstalk.com/api/Usuarios/cadastrarUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
