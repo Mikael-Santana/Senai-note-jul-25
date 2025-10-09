@@ -640,7 +640,8 @@
 ::ng-deep body.dark-mode .search-input,
 ::ng-deep body.dark-mode .note-details,
 ::ng-deep body.dark-mode .note-metadata,
-::ng-deep body.dark-mode .metadata-tag {
+::ng-deep body.dark-mode .metadata-tag,
+::ng-deep body.dark-mode  .notes-container{
   background-color: #232530 !important;
   border-color: #3a3c47 !important;
 }

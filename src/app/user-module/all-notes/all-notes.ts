@@ -348,4 +348,4 @@ export class AllNotes {
     localStorage.removeItem("meuId");
     window.location.href = "login";
   }
-}
+}  
