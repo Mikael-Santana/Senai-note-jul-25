@@ -10,7 +10,7 @@
       <button 
         class="nav-item" 
         [class.active]="viewMode === 'list'"
-        (click)="viewMode = 'list'">
+        (click)="toggleViewMode()">
         <span class="nav-icon">
           <fa-icon [icon]="faHouse"></fa-icon>
         </span>
@@ -21,7 +21,7 @@
       <button 
         class="nav-item"
         [class.active]="viewMode === 'archived'"
-        (click)="viewMode = 'archived'">
+        (click)="toggleViewMode()">
         <span class="nav-icon">
           <fa-icon [icon]="faBox"></fa-icon>
         </span>
@@ -47,13 +47,13 @@
   <!-- Área principal -->
   <div class="main-content">
     <div class="notes-header">
-      <h2 class="section-title">All Notes</h2>
+      <h2 class="section-title">{{ viewMode === 'list' ? 'All Notes' : 'Archived Notes' }}</h2>
       
       <div class="header-actions">
         <input 
           type="text" 
           class="search-input"
-          placeholder="Search by title, content, or tags..."
+          placeholder="Search by content or tags..."
           [formControl]="termoBusca">
         
         <button class="icon-button" (click)="ligarDesligarDarkMode()" title="Toggle Dark Mode">
@@ -74,12 +74,12 @@
       <div 
         *ngFor="let note of notasFiltradas"
         class="note-card"
-        [class.selected]="notaSelecionada?.id === note.id"
+        [class.selected]="notaSelecionada?.idNota === note.idNota"
         (click)="onNoteClick(note)">
         
         <img 
-          *ngIf="note.imagemUrl" 
-          [src]="note.imagemUrl" 
+          *ngIf="note.urlImg" 
+          [src]="note.urlImg" 
           alt="Imagem da nota" 
           class="note-card-banner">
 
@@ -87,23 +87,23 @@
           <div class="note-card-header">
             <div class="note-card-icon"></div>
             <div class="note-card-info">
-              <h3 class="note-title">{{ note.titulo }}</h3>
+              <h3 class="note-title">{{ note.descricao.length > 50 ? (note.descricao | slice:0:50) + '...' : note.descricao }}</h3>
             </div>
           </div>
           
           <div class="note-tags">
-            <span *ngFor="let tag of note.tags" class="note-tag">
-              {{ tag }}
+            <span *ngFor="let tag of note.tag" class="note-tag">
+              {{ tag.nomeTag }}
             </span>
           </div>
           
-          <p class="note-date">{{ formatarData(note.dataEdicao) }}</p>
+          <p class="note-date">{{ formatarData(note.dataUpdate) }}</p>
         </div>
       </div>
     </div>
 
     <div class="empty-state" *ngIf="notasFiltradas.length === 0 && !modoCriacao">
-      <p>You don't have any notes yet. Start a new note to capture your thoughts and ideas.</p>
+      <p>{{ viewMode === 'list' ? 'You don\'t have any notes yet. Start a new note to capture your thoughts and ideas.' : 'You don\'t have any archived notes.' }}</p>
     </div>
   </div>
 
@@ -113,7 +113,9 @@
     <!-- Modo Visualização -->
     <ng-container *ngIf="!modoEdicao && !modoCriacao">
       <div class="note-detail-actions">
-        <button class="action-icon-btn" (click)="modoEdicao = true" title="Edit Note"><fa-icon [icon]="faPenToSquare"></fa-icon></button>
+        <button class="action-icon-btn" (click)="modoEdicao = true" title="Edit Note">
+          <fa-icon [icon]="faPenToSquare"></fa-icon>
+        </button>
         <button class="action-icon-btn" title="Archive Note">
           <fa-icon [icon]="faBox"></fa-icon>
         </button>
@@ -123,15 +125,15 @@
       </div>
 
       <img 
-        *ngIf="notaSelecionada?.imagemUrl" 
-        [src]="notaSelecionada?.imagemUrl" 
+        *ngIf="notaSelecionada?.urlImg" 
+        [src]="notaSelecionada?.urlImg" 
         alt="Imagem da nota selecionada" 
         class="note-detail-banner">
 
       <div class="note-detail-content">
         <div class="note-detail-header">
           <div class="note-detail-icon"></div>
-          <h2 class="note-detail-title">{{ notaSelecionada?.titulo }}</h2>
+          <h2 class="note-detail-title">Note #{{ notaSelecionada?.idNota }}</h2>
         </div>
 
         <div class="note-metadata">
@@ -139,16 +141,38 @@
             <span class="metadata-icon">🏷️</span>
             <span class="metadata-label">Tags</span>
             <div class="metadata-tags">
-              <span *ngFor="let tag of notaSelecionada?.tags" class="metadata-tag">
-                {{ tag }}
+              <span *ngFor="let tag of notaSelecionada?.tag" class="metadata-tag">
+                {{ tag.nomeTag }}
               </span>
+              <span class="metadata-value">{{ (notaSelecionada?.status ?? false) ? 'Active' : 'Archived' }}</span>
+
+                
+              
             </div>
+          </div>
+
+          <div class="metadata-item">
+            <span class="metadata-icon">📧</span>
+            <span class="metadata-label">Owner</span>
+            <span class="metadata-value">{{ notaSelecionada?.email }}</span>
+          </div>
+
+          <div class="metadata-item">
+            <span class="metadata-icon">📅</span>
+            <span class="metadata-label">Created</span>
+            <span class="metadata-value">{{ formatarData(notaSelecionada?.dataCriacao) }}</span>
           </div>
 
           <div class="metadata-item">
             <span class="metadata-icon">🕐</span>
             <span class="metadata-label">Last edited</span>
-            <span class="metadata-value">{{ formatarData(notaSelecionada?.dataEdicao) }}</span>
+            <span class="metadata-value">{{ formatarData(notaSelecionada?.dataUpdate) }}</span>
+          </div>
+
+          <div class="metadata-item">
+            <span class="metadata-icon">📊</span>
+            <span class="metadata-label">Status</span>
+            <span class="metadata-value">{{ notaSelecionada?.status ? 'Active' : 'Archived' }}</span>
           </div>
         </div>
 
@@ -157,6 +181,7 @@
       </div>
     </ng-container>
 
+    <!-- Modo Edição/Criação -->
     <ng-container *ngIf="modoEdicao || modoCriacao">
       <div class="note-detail-actions">
         <button class="action-icon-btn" (click)="cancelar()" title="Cancel">✖️</button>
