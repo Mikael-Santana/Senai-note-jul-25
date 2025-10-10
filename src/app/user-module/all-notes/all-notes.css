@@ -665,7 +665,8 @@
 ::ng-deep body.dark-mode .content-title,
 ::ng-deep body.dark-mode .note-content-text,
 ::ng-deep body.dark-mode .metadata-label,
-::ng-deep body.dark-mode .metadata-value {
+::ng-deep body.dark-mode .metadata-value,
+:ng-deep body.dark-mode .form-section-title{
   color: #f2f2f2 !important;
 }
 
