@@ -6,7 +6,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { faBox, faPenToSquare, faHouse, faUser, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faBox, faPenToSquare, faHouse, faUser, faMoon, faSun, faArchive, faInbox } from '@fortawesome/free-solid-svg-icons';
 
 // Interface que define o formato de uma Nota
 interface INote {
@@ -17,6 +17,7 @@ interface INote {
   tags: string[];
   imagemUrl?: string;
   dataEdicao?: string;
+  arquivada?: boolean;
 }
 
 @Component({
@@ -28,12 +29,14 @@ interface INote {
 })
 export class AllNotes {
   faTrash = faTrash;
-  faBox= faBox
-  faPenToSquare=faPenToSquare
-  faHouse=faHouse
-  faUser=faUser
-  faMoon=faMoon
-  faSun=faSun
+  faBox = faBox;
+  faPenToSquare = faPenToSquare;
+  faHouse = faHouse;
+  faUser = faUser;
+  faMoon = faMoon;
+  faSun = faSun;
+  faArchive = faArchive;
+  faInbox = faInbox;
   
   // URL da API mockada
   private apiUrl = 'http://localhost:3000/notas';
@@ -87,6 +90,11 @@ export class AllNotes {
 
     console.log("🚀 Componente All Notes inicializado!");
     console.log("📡 API URL:", this.apiUrl);
+  }
+
+  // Getter para o título da seção baseado no viewMode
+  get sectionTitle(): string {
+    return this.viewMode === 'list' ? 'All Notes' : 'Archived Notes';
   }
 
   // Método auxiliar para obter descrição (evita erro com caracteres especiais)
@@ -201,7 +209,8 @@ export class AllNotes {
           tags: tags,
           imagemUrl: imagemUrl,
           usuarioId: this.usuarioLogadoId,
-          dataEdicao: new Date().toISOString()
+          dataEdicao: new Date().toISOString(),
+          arquivada: false
         };
 
         console.log("📤 Dados a serem enviados:", novaNota);
@@ -225,7 +234,8 @@ export class AllNotes {
           tags: tags,
           imagemUrl: imagemUrl,
           usuarioId: this.usuarioLogadoId,
-          dataEdicao: new Date().toISOString()
+          dataEdicao: new Date().toISOString(),
+          arquivada: this.notaSelecionada.arquivada || false
         };
 
         console.log("📤 Dados da atualização:", notaAtualizada);
@@ -280,9 +290,91 @@ export class AllNotes {
     }
   }
 
+  // Arquiva uma nota
+  async arquivarNota() {
+    if (!this.notaSelecionada || !this.notaSelecionada.id) return;
+
+    console.log("📦 Arquivando nota ID:", this.notaSelecionada.id);
+
+    try {
+      const notaAtualizada: INote = {
+        ...this.notaSelecionada,
+        arquivada: true,
+        dataEdicao: new Date().toISOString()
+      };
+
+      await firstValueFrom(
+        this.http.put<INote>(
+          `${this.apiUrl}/${this.notaSelecionada.id}`,
+          notaAtualizada
+        )
+      );
+
+      console.log("✅ Nota arquivada com sucesso!");
+      alert("Nota arquivada com sucesso!");
+      
+      this.notaSelecionada = null;
+      await this.getNotes();
+      
+    } catch (error) {
+      console.error("❌ Erro ao arquivar nota:", error);
+      alert("Não foi possível arquivar a nota.");
+    }
+  }
+
+  // Desarquiva uma nota
+  async desarquivarNota() {
+    if (!this.notaSelecionada || !this.notaSelecionada.id) return;
+
+    console.log("📤 Desarquivando nota ID:", this.notaSelecionada.id);
+
+    try {
+      const notaAtualizada: INote = {
+        ...this.notaSelecionada,
+        arquivada: false,
+        dataEdicao: new Date().toISOString()
+      };
+
+      await firstValueFrom(
+        this.http.put<INote>(
+          `${this.apiUrl}/${this.notaSelecionada.id}`,
+          notaAtualizada
+        )
+      );
+
+      console.log("✅ Nota desarquivada com sucesso!");
+      alert("Nota desarquivada com sucesso!");
+      
+      this.notaSelecionada = null;
+      await this.getNotes();
+      
+    } catch (error) {
+      console.error("❌ Erro ao desarquivar nota:", error);
+      alert("Não foi possível desarquivar a nota.");
+    }
+  }
+
+  // Alterna entre arquivar/desarquivar
+  async toggleArquivarNota() {
+    if (!this.notaSelecionada) return;
+
+    if (this.notaSelecionada.arquivada) {
+      await this.desarquivarNota();
+    } else {
+      await this.arquivarNota();
+    }
+  }
+
   // Getter para notas filtradas
   get notasFiltradas(): INote[] {
     let notas = this.notes;
+
+    // Filtro por modo de visualização
+    if (this.viewMode === 'list') {
+      notas = notas.filter(note => !note.arquivada);
+    } else if (this.viewMode === 'archived') {
+      notas = notas.filter(note => note.arquivada);
+    }
 
     // Filtro de busca
     const termo = this.termoBusca.value?.toLowerCase();
@@ -348,4 +440,4 @@ export class AllNotes {
     localStorage.removeItem("meuId");
     window.location.href = "login";
   }
-}  
+}

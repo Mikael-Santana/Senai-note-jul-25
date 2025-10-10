@@ -666,7 +666,7 @@
 ::ng-deep body.dark-mode .note-content-text,
 ::ng-deep body.dark-mode .metadata-label,
 ::ng-deep body.dark-mode .metadata-value,
-:ng-deep body.dark-mode .form-section-title{
+::ng-deep body.dark-mode .form-section-title{
   color: #f2f2f2 !important;
 }
 
@@ -690,4 +690,57 @@
 ::ng-deep body.dark-mode .search-input:focus {
   border-color: #5a84f2 ;
   box-shadow: 0 0 0 2px rgba(90, 132, 242, 0.2);
+}
+/* Badge para notas arquivadas na lista */
+.archived-badge {
+  background: #f59e0b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Banner para nota arquivada no painel de detalhes */
+.note-archived-banner {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.dark-mode .note-archived-banner {
+  background: #451a03;
+  border-color: #d97706;
+  color: #fed7aa;
+}
+
+/* Status arquivado nos metadados */
+.archived-status {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.dark-mode .archived-status {
+  color: #fbbf24;
+}
+
+/* Esconder botão de criar nota na view arquivada */
+.create-note-button {
+  margin: 20px 0;
+}
+
+/* Ajustes para o título dinâmico */
+.section-title {
+  margin: 0;
+  color: var(--text-color);
+  margin-bottom: 10px;
+  margin-left: 4px ;
 }

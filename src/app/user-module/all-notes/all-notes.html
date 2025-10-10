@@ -47,7 +47,7 @@
   <!-- Área principal -->
   <div class="main-content">
     <div class="notes-header">
-      <h2 class="section-title">All Notes</h2>
+      <h2 class="section-title">{{ sectionTitle }}</h2>
       
       <div class="header-actions">
         <input 
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <button class="create-note-button" (click)="criarNovaNota()">
+    <button class="create-note-button" (click)="criarNovaNota()" *ngIf="viewMode === 'list'">
       + Create New Note
     </button>
 
@@ -77,6 +77,10 @@
         [class.selected]="notaSelecionada?.id === note.id"
         (click)="onNoteClick(note)">
         
+        <div class="note-card-header" *ngIf="note.arquivada">
+          <span class="archived-badge">Archived</span>
+        </div>
+
         <img 
           *ngIf="note.imagemUrl" 
           [src]="note.imagemUrl" 
@@ -103,7 +107,8 @@
     </div>
 
     <div class="empty-state" *ngIf="notasFiltradas.length === 0 && !modoCriacao">
-      <p>You don't have any notes yet. Start a new note to capture your thoughts and ideas.</p>
+      <p *ngIf="viewMode === 'list'">You don't have any notes yet. Start a new note to capture your thoughts and ideas.</p>
+      <p *ngIf="viewMode === 'archived'">You don't have any archived notes yet.</p>
     </div>
   </div>
 
@@ -113,13 +118,23 @@
     <!-- Modo Visualização -->
     <ng-container *ngIf="!modoEdicao && !modoCriacao">
       <div class="note-detail-actions">
-        <button class="action-icon-btn" (click)="modoEdicao = true" title="Edit Note"><fa-icon [icon]="faPenToSquare"></fa-icon></button>
-        <button class="action-icon-btn" title="Archive Note">
-          <fa-icon [icon]="faBox"></fa-icon>
+        <button class="action-icon-btn" (click)="modoEdicao = true" title="Edit Note">
+          <fa-icon [icon]="faPenToSquare"></fa-icon>
+        </button>
+        <button 
+          class="action-icon-btn" 
+          (click)="toggleArquivarNota()" 
+          [title]="notaSelecionada?.arquivada ? 'Unarchive Note' : 'Archive Note'">
+          <fa-icon [icon]="notaSelecionada?.arquivada ? faInbox : faArchive"></fa-icon>
         </button>
         <button class="action-icon-btn danger" (click)="deletarNota()" title="Delete Note">
           <fa-icon [icon]="faTrash"></fa-icon>
         </button>
+      </div>
+
+      <div class="note-archived-banner" *ngIf="notaSelecionada?.arquivada">
+        <fa-icon [icon]="faBox"></fa-icon>
+        <span>This note is archived</span>
       </div>
 
       <img 
@@ -149,6 +164,14 @@
             <span class="metadata-icon">🕐</span>
             <span class="metadata-label">Last edited</span>
             <span class="metadata-value">{{ formatarData(notaSelecionada?.dataEdicao) }}</span>
+          </div>
+
+          <div class="metadata-item" *ngIf="notaSelecionada?.arquivada">
+            <span class="metadata-icon">
+              <fa-icon [icon]="faBox"></fa-icon>
+            </span>
+            <span class="metadata-label">Status</span>
+            <span class="metadata-value archived-status">Archived</span>
           </div>
         </div>
 
